@@ -1,6 +1,6 @@
 ![logo](https://raw.github.com/shrt/Fruitless/master/fruitless-logo.png)
 
-Fruitless is a 2D-focused game engine with little hope. It runs on **OS X** and **Windows**, and is based on [OpenTK](http://www.opentk.com/) and [ComponentKit](http://componentk.it). 
+Fruitless is a 2D-focused game engine with little hope. It runs on **OS X** and **Windows**, and is based on [OpenTK](http://www.opentk.com/) and [ComponentKit](http://componentk.it). It is currently in **alpha** state.
 
 Basically... It draws sprites.
 
