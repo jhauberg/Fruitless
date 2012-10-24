@@ -34,14 +34,30 @@ namespace Labs {
                 Texture = Texture.FromFile("fruitless-logo.png")
             };
 
-            Entity.Create("logo", sprite, new Bounce());
-            
+            Sprite backgroundSprite = new Sprite() {
+                Repeats = true,
+                Layer = -1,
+                Bounds = new Size(_context.Bounds.Width, _context.Bounds.Height),
+
+                Texture = Texture.FromFile("tile.png")
+            };
+
             SpriteBatch spriteBatch = new SpriteBatch();
             {
                 spriteBatch.Add(sprite);
+                spriteBatch.Add(backgroundSprite);
             }
 
+            Entity.Create("logo", sprite, new Bounce());
+            Entity.Create("background", backgroundSprite);
             Entity.Create("batcher batcher batcher!", spriteBatch);
+            
+            SpriteBatch editorSpriteBatch = new SpriteBatch();
+            {
+                
+            }
+
+            Entity.Create("editor-spritebatch", editorSpriteBatch);
         }
 
         protected override void OnResize(EventArgs e) {

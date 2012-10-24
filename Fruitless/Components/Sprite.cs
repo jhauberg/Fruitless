@@ -38,6 +38,25 @@ namespace Fruitless.Components {
             }
         }
 
+        bool _repeats;
+
+        public bool Repeats {
+            get {
+                return _texture != null ? 
+                    _texture.Repeats : 
+                    _repeats;
+            }
+            set {
+                if (_repeats != value) {
+                    _repeats = value;
+
+                    if (_texture != null) {
+                        _texture.Repeats = _repeats;
+                    }
+                }
+            }
+        }
+
         Texture _texture;
 
         public Texture Texture {
@@ -62,6 +81,8 @@ namespace Fruitless.Components {
                         if (_frame == Rectangle.Empty) {
                             _frame = new Rectangle(Point.Empty, _bounds);
                         }
+
+                        _texture.Repeats = _repeats;
                     }
 
                     OnTextureChanged(new TextureChangedEventArgs(previousTexture, _texture));
