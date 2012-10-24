@@ -4,11 +4,11 @@ Fruitless is a 2D-focused game engine with little hope. It runs on **OS X** and 
 
 Basically... It draws sprites.
 
------
-
 # Games
 
  - None, ever :(
+
+-----
 
 ## License
 
