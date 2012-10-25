@@ -62,15 +62,23 @@ namespace Fruitless.Components {
             new List<Sprite>();
 
         [RequireComponent]
-        public Transformable2D Transform;
+        Transformable2D _transform;
 
-        public override void Reset() {
+        public Transformable2D Transform {
+            get {
+                return _transform;
+            }
+        }
+
+        public SpriteBatch() {
             RenderState = RenderStates.Sprite;
 
             Layer = 0;
             LayerDepth = 0;
             IsTransparent = false;
+        }
 
+        public override void Reset() {
             CreateShaderPrograms();
             CreateBufferObjects();
         }
@@ -179,13 +187,13 @@ namespace Fruitless.Components {
                     VertexPositionColorTexture[] vertices = _vertices[sprite.Texture];
 
                     int offset = i * 2 * 3;
-
+                    
                     Vector4 tint = new Vector4(
                         sprite.TintColor.R,
                         sprite.TintColor.G,
                         sprite.TintColor.B,
                         sprite.TintColor.A);
-
+                    
                     // first triangle (cw)
                     int v0 = offset + 0;
                     int v1 = offset + 1;
@@ -198,11 +206,11 @@ namespace Fruitless.Components {
                     vertices[v0].TextureCoordinate = textl;
                     vertices[v1].TextureCoordinate = texbr;
                     vertices[v2].TextureCoordinate = texbl;
-
+                    
                     vertices[v0].Color = tint;
                     vertices[v1].Color = tint;
                     vertices[v2].Color = tint;
-
+                    
                     // second triangle (cw)
                     v0 = offset + 3;
                     v1 = offset + 4;
@@ -215,11 +223,11 @@ namespace Fruitless.Components {
                     vertices[v0].TextureCoordinate = textl;
                     vertices[v1].TextureCoordinate = textr;
                     vertices[v2].TextureCoordinate = texbr;
-
+                    
                     vertices[v0].Color = tint;
                     vertices[v1].Color = tint;
                     vertices[v2].Color = tint;
-
+         
                     _vertices[sprite.Texture] = vertices;
                 }
             }
@@ -241,8 +249,8 @@ namespace Fruitless.Components {
                     GL.UniformMatrix4(u_mvpHandle, false, ref mvp);
 
                     GL.EnableVertexAttribArray(a_positionHandle);
-                    GL.EnableVertexAttribArray(a_textureCoordHandle);
                     GL.EnableVertexAttribArray(a_tintHandle);
+                    GL.EnableVertexAttribArray(a_textureCoordHandle);
                     {
                         VertexPositionColorTexture[] vertices = _vertices[texture];
 
@@ -255,15 +263,15 @@ namespace Fruitless.Components {
 
                             GL.VertexAttribPointer(a_positionHandle, 3, VertexAttribPointerType.Float, false, VertexPositionColorTexture.SizeInBytes, 0);
                             GL.VertexAttribPointer(a_tintHandle, 4, VertexAttribPointerType.Float, true, VertexPositionColorTexture.SizeInBytes, 1 * Vector3.SizeInBytes);
-                            GL.VertexAttribPointer(a_textureCoordHandle, 2, VertexAttribPointerType.Float, true, VertexPositionColorTexture.SizeInBytes, (1 * Vector4.SizeInBytes) + (1 * Vector3.SizeInBytes));
+                            GL.VertexAttribPointer(a_textureCoordHandle, 2, VertexAttribPointerType.Float, true, VertexPositionColorTexture.SizeInBytes, (1 * Vector3.SizeInBytes) + (1 * Vector4.SizeInBytes));
                         }
                         GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 
                         GL.DrawArrays(BeginMode.Triangles, 0, vertices.Length);
                     }
                     GL.DisableVertexAttribArray(a_positionHandle);
-                    GL.DisableVertexAttribArray(a_textureCoordHandle);
                     GL.DisableVertexAttribArray(a_tintHandle);
+                    GL.DisableVertexAttribArray(a_textureCoordHandle);
 
                     GL.BindTexture(TextureTarget.Texture2D, 0);
                 }

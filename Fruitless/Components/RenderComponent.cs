@@ -1,20 +1,30 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using Fruitless.Utility;
+using System.Collections.Generic;
 
 namespace Fruitless.Components {
     public abstract class RenderComponent : GameComponent, IRenderable, IComparable<RenderComponent> {
+        // RenderComponents are ordered by packing DrawableSettings into a long and then using that value to sort with.
+        // based on this wonderful article! http://realtimecollisiondetection.net/blog/?p=86
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         private struct DrawableSettings {
+            // fields are listed least- to most important. e.g. transparency has a higher impact on order than renderstate.
             [BitfieldLength(32)]
             public uint RenderState;
 
-            [BitfieldLength(24)]
+            [BitfieldLength(22)]
             public uint LayerDepth;
-            [BitfieldLength(7)]
+            [BitfieldLength(8)]
             public uint Layer;
-            [BitfieldLength(1)]
+            //
+            [BitfieldLength(2)]
             public uint IsTransparent;
+
+            public override string ToString() {
+                return String.Format("{{ IsTransparent: {0}, Layer: {1}, LayerDepth: {2}, RenderState: {3} }}", 
+                    IsTransparent, Layer, LayerDepth, RenderState);
+            }
         }
 
         DrawableSettings _settings;
@@ -41,6 +51,25 @@ namespace Fruitless.Components {
             return !left.Equals(right);
         }
 
+        // this is ugleh! but works for now.
+        // making new function pointers for each component resulted in bad sorting, so they had to be cached somehow...
+        static Dictionary<RenderState, IntPtr> _cachedRenderStates =
+            new Dictionary<RenderState, IntPtr>();
+
+        static uint GetSortIndexForState(RenderState state) {
+            uint sortIndex = 0;
+
+            if (state != null) {
+                if (!_cachedRenderStates.ContainsKey(state)) {
+                    _cachedRenderStates[state] = Marshal.GetFunctionPointerForDelegate(state);
+                }
+
+                sortIndex = (uint)_cachedRenderStates[state].ToInt32();
+            }
+
+            return sortIndex;
+        }
+
         public RenderState RenderState {
             get {
                 if (_settings.RenderState != 0) {
@@ -50,17 +79,15 @@ namespace Fruitless.Components {
                 return null;
             }
             set {
-                if (value != null) {
-                    _settings.RenderState = (uint)Marshal.GetFunctionPointerForDelegate(value).ToInt32();
+                _settings.RenderState = (uint)GetSortIndexForState(value);
 
-                    Settings = _settings;
-                } else {
-                    _settings.RenderState = 0;
-                }
+                Settings = _settings;
             }
         }
 
         /// <summary>
+        /// An index specifying order within the current layer.
+        /// Higher indices get rendered last.
         /// 0-PLENTY.
         /// </summary>
         public uint LayerDepth {
@@ -75,7 +102,9 @@ namespace Fruitless.Components {
         }
 
         /// <summary>
-        /// 0-128
+        /// An index specifying which layer this component is on. 
+        /// Higher layers get rendered last.
+        /// 0-128.
         /// </summary>
         public uint Layer {
             get {
@@ -109,11 +138,14 @@ namespace Fruitless.Components {
             set {
                 _settings = value;
 
-                SortingKey = PrimitiveConversion.ToLong<DrawableSettings>(_settings);
+                SortingKey = PrimitiveConversion
+                    .ToLong<DrawableSettings>(_settings);
+
+                System.Diagnostics.Debug.WriteLine(String.Format("{0} = {1}", _settings.ToString(), SortingKey));
             }
         }
 
-        private long SortingKey {
+        public long SortingKey {
             get;
             set;
         }
