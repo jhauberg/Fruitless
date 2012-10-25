@@ -24,8 +24,6 @@ namespace Fruitless {
             return texture;
         }
 
-        bool _repeats;
-
         public Texture(string filename) {
             TextureID = -1;
 
@@ -114,30 +112,5 @@ namespace Fruitless {
             get;
             private set;
         }
-        /*
-        public bool Repeats {
-            get {
-                return _repeats;
-            }
-            set {
-                if (_repeats != value) {
-                    _repeats = value;
-
-                    GL.BindTexture(TextureTarget.Texture2D, TextureID);
-                    {
-                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS,
-                            _repeats ?
-                                (int)TextureWrapMode.Repeat :
-                                (int)TextureWrapMode.ClampToEdge);
-
-                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT,
-                            _repeats ?
-                                (int)TextureWrapMode.Repeat :
-                                (int)TextureWrapMode.ClampToEdge);
-                    }
-                    GL.BindTexture(TextureTarget.Texture2D, 0);
-                }
-            }
-        }*/
     }
 }
