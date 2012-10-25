@@ -61,7 +61,7 @@ namespace Fruitless {
                     _timeline.Removed(args.DettachedComponents);
                 });
 
-            _camera.Background = new Color4(48, 53, 70, 255);
+            _camera.Background = new Color4(255, 0, 0, 255);//new Color4(48, 53, 70, 255);
         }
 
         void OnEntityEntered(object sender, EntityEventArgs e) {

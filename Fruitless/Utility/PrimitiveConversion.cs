@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 
 namespace Fruitless.Utility {
     // this guy!! http://stackoverflow.com/questions/14464/bit-fields-in-c/14591#14591
@@ -8,7 +9,7 @@ namespace Fruitless.Utility {
             int offset = 0;
 
             // For every field suitably attributed with a BitfieldLength
-            foreach (System.Reflection.FieldInfo f in t.GetType().GetFields()) {
+            foreach (FieldInfo f in t.GetType().GetFields()) {
                 object[] attrs = f.GetCustomAttributes(typeof(BitfieldLengthAttribute), false);
 
                 if (attrs.Length == 1) {

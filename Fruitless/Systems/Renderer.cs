@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using ComponentKit;
 using Fruitless.Components;
+using System;
 
 namespace Fruitless.Systems {
     public class Renderer : IRenderable {
@@ -38,7 +39,7 @@ namespace Fruitless.Systems {
                 _renderables.Sort(delegate(RenderComponent drawable, RenderComponent otherDrawable) {
                     return drawable.CompareTo(otherDrawable);
                 });
-
+           
                 camera.Clear();
 
                 foreach (RenderComponent renderable in _renderables) {
