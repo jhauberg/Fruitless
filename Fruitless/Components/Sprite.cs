@@ -5,7 +5,7 @@ using OpenTK;
 using OpenTK.Graphics;
 
 namespace Fruitless.Components {
-    public class Sprite : GameComponent, IComparable<Sprite> {
+    public class Sprite : DependencyComponent, IComparable<Sprite> {
         public static readonly Vector2 AnchorFromCenter =
             new Vector2(0, 0);
         public static readonly Vector2 AnchorFromBottomLeft =
@@ -42,17 +42,13 @@ namespace Fruitless.Components {
 
         public bool Repeats {
             get {
-                return _texture != null ? 
-                    _texture.Repeats : 
-                    _repeats;
+                return _repeats;
             }
             set {
                 if (_repeats != value) {
                     _repeats = value;
 
-                    if (_texture != null) {
-                        _texture.Repeats = _repeats;
-                    }
+                    IsDirty = true;
                 }
             }
         }
@@ -71,18 +67,18 @@ namespace Fruitless.Components {
 
                     if (_texture != null) {
                         // default boundaries to texture size
+                        Size textureSize = new Size(
+                            _texture.Width,
+                            _texture.Height);
+
                         if (_bounds == Size.Empty) {
-                            _bounds = new Size(
-                                _texture.Width, 
-                                _texture.Height);
+                            _bounds = textureSize;
                         }
 
                         // default to show the entire texture
                         if (_frame == Rectangle.Empty) {
-                            _frame = new Rectangle(Point.Empty, _bounds);
+                            _frame = new Rectangle(Point.Empty, textureSize);
                         }
-
-                        _texture.Repeats = _repeats;
                     }
 
                     OnTextureChanged(new TextureChangedEventArgs(previousTexture, _texture));
@@ -171,11 +167,17 @@ namespace Fruitless.Components {
         }
 
         public int CompareTo(Sprite other) {
-            return
-                Layer != other.Layer ?
-                    Layer < other.Layer ?
-                        -1 : 1 :
-                    0;
+            if (Layer < other.Layer) {
+                return -1;
+            } else if (Layer == other.Layer) {
+                return 0;
+            }
+
+            return 1;
+        }
+
+        public override string ToString() {
+            return String.Format("{0}", _texture != null ?  _texture.Filename : "void");
         }
     }
 }

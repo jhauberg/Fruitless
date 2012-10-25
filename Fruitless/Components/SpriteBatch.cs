@@ -62,7 +62,7 @@ namespace Fruitless.Components {
             new List<Sprite>();
 
         [RequireComponent]
-        Transformable2D _transform;
+        Transformable2D _transform = null;
 
         public Transformable2D Transform {
             get {
@@ -138,6 +138,8 @@ namespace Fruitless.Components {
                 for (int i = 0; i < sprites.Count; i++) {
                     Sprite sprite = sprites[i];
 
+                    //System.Diagnostics.Debug.WriteLine("" + sprite.Layer);
+
                     if (!sprite.IsDirty &&
                         !sprite.Transform.IsInvalidated) {
                         continue;
@@ -169,10 +171,25 @@ namespace Fruitless.Components {
                     float uvScaleX = 1;
                     float uvScaleY = 1;
 
-                    if (sprite.Texture.Repeats) {
-                        uvScaleX = sprite.Bounds.Width / sprite.Frame.Size.Width;
-                        uvScaleY = sprite.Bounds.Height / sprite.Frame.Size.Height;
+                    GL.BindTexture(TextureTarget.Texture2D, sprite.Texture.TextureID);
+                    {
+                        // this needs to occur every time, because when using the same texture one sprite may want to repeat while another does not.
+                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS,
+                            sprite.Repeats ?
+                                (int)TextureWrapMode.Repeat :
+                                (int)TextureWrapMode.ClampToEdge);
+
+                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT,
+                            sprite.Repeats ?
+                                (int)TextureWrapMode.Repeat :
+                                (int)TextureWrapMode.ClampToEdge);
+
+                        if (sprite.Repeats) {
+                            uvScaleX = (float)sprite.Bounds.Width / (float)sprite.Frame.Size.Width;
+                            uvScaleY = (float)sprite.Bounds.Height / (float)sprite.Frame.Size.Height;
+                        }
                     }
+                    GL.BindTexture(TextureTarget.Texture2D, 0);
 
                     Vector2 textl = new Vector2(
                         ((2 * rect.X + 1) / (2 * sprite.Texture.Width)) * uvScaleX,

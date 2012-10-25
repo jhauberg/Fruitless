@@ -9,18 +9,18 @@ namespace Fruitless {
     public class Texture : IDisposable, IEquatable<Texture> {
         static Dictionary<String, Texture> CachedTextures =
             new Dictionary<string, Texture>();
-
+        
         public static Texture FromFile(string filename) {
             Texture texture = null;
-
+            
             if (CachedTextures.ContainsKey(filename)) {
                 texture = CachedTextures[filename];
             } else {
                 texture = new Texture(filename);
-
+            
                 CachedTextures[filename] = texture;
             }
-
+            
             return texture;
         }
 
@@ -79,7 +79,7 @@ namespace Fruitless {
             GL.DeleteTexture(TextureID);
 
             TextureID = -1;
-
+            
             if (CachedTextures.ContainsKey(Filename)) {
                 CachedTextures.Remove(Filename);
             }
@@ -114,7 +114,7 @@ namespace Fruitless {
             get;
             private set;
         }
-
+        /*
         public bool Repeats {
             get {
                 return _repeats;
@@ -129,6 +129,7 @@ namespace Fruitless {
                             _repeats ?
                                 (int)TextureWrapMode.Repeat :
                                 (int)TextureWrapMode.ClampToEdge);
+
                         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT,
                             _repeats ?
                                 (int)TextureWrapMode.Repeat :
@@ -137,6 +138,6 @@ namespace Fruitless {
                     GL.BindTexture(TextureTarget.Texture2D, 0);
                 }
             }
-        }
+        }*/
     }
 }

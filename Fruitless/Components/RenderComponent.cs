@@ -141,11 +141,11 @@ namespace Fruitless.Components {
                 SortingKey = PrimitiveConversion
                     .ToLong<DrawableSettings>(_settings);
 
-                System.Diagnostics.Debug.WriteLine(String.Format("{0} = {1}", _settings.ToString(), SortingKey));
+                //System.Diagnostics.Debug.WriteLine(String.Format("{0} = {1}", _settings.ToString(), SortingKey));
             }
         }
 
-        public long SortingKey {
+        private long SortingKey {
             get;
             set;
         }
