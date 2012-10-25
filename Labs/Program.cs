@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Fruitless;
 using ComponentKit.Model;
 using OpenTK;
@@ -7,10 +8,11 @@ using OpenTK.Graphics;
 using System.Drawing;
 using Labs.Components;
 using Fruitless.Components;
+using ComponentKit;
 
 namespace Labs {
     internal class Program : GameWindow {
-        DefaultGameContext _context;
+        EditableGameContext _context;
 
         public Program()
             : base(480, 400, GraphicsMode.Default, "FRUITLESS LIVING") {
@@ -27,17 +29,22 @@ namespace Labs {
         protected override void OnLoad(EventArgs e) {
             base.OnLoad(e);
 
-            _context = new DefaultGameContext(
+            _context = new EditableGameContext(
                 windowBoundsInPixels: ClientRectangle.Size);
 
+            _context.Registry.Entered += OnEntityEntered;
+            _context.Registry.Removed += OnEntityRemoved;
+            
             Sprite sprite = new Sprite() {
                 Texture = Texture.FromFile("fruitless-logo.png")
             };
-
+            
             Sprite backgroundSprite = new Sprite() {
-                Repeats = true,
                 Layer = -1,
-                Bounds = new Size(_context.Bounds.Width, _context.Bounds.Height),
+                Repeats = true,
+                Bounds = new Size(
+                    _context.Bounds.Width, 
+                    _context.Bounds.Height),
 
                 Texture = Texture.FromFile("tile.png")
             };
@@ -45,19 +52,20 @@ namespace Labs {
             SpriteBatch spriteBatch = new SpriteBatch();
             {
                 spriteBatch.Add(sprite);
-                spriteBatch.Add(backgroundSprite);
+                spriteBatch.Add(backgroundSprite);   
             }
 
             Entity.Create("logo", sprite, new Bounce());
             Entity.Create("background", backgroundSprite);
             Entity.Create("batcher batcher batcher!", spriteBatch);
-            
-            SpriteBatch editorSpriteBatch = new SpriteBatch();
-            {
-                
-            }
+        }
 
-            Entity.Create("editor-spritebatch", editorSpriteBatch);
+        void OnEntityEntered(object sender, EntityEventArgs e) {
+
+        }
+
+        void OnEntityRemoved(object sender, EntityEventArgs e) {
+
         }
 
         protected override void OnResize(EventArgs e) {
