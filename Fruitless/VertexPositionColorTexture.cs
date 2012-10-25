@@ -42,9 +42,14 @@ namespace Fruitless {
             get {
                 return
                     Vector3.SizeInBytes +
-                    Vector2.SizeInBytes +
-                    Vector4.SizeInBytes;
+                    Vector4.SizeInBytes +
+                    Vector2.SizeInBytes;
             }
+        }
+
+        public override string ToString() {
+            return String.Format("{{ Position: {0}, Color: {1}, TextureCoordinate: {2} }}", 
+                Position, Color, TextureCoordinate);
         }
     }
 }
