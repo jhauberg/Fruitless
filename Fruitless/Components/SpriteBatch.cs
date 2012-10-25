@@ -90,7 +90,6 @@ namespace Fruitless.Components {
 
             if (!_sprites.Contains(sprite)) {
                 _sprites.Add(sprite);
-                _sprites.Sort();
 
                 sprite.TextureChanged += OnTextureChanged;
 
@@ -137,8 +136,6 @@ namespace Fruitless.Components {
 
                 for (int i = 0; i < sprites.Count; i++) {
                     Sprite sprite = sprites[i];
-
-                    //System.Diagnostics.Debug.WriteLine("" + sprite.Layer);
 
                     if (!sprite.IsDirty &&
                         !sprite.Transform.IsInvalidated) {
