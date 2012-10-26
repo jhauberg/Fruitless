@@ -8,7 +8,7 @@ namespace Fruitless.Components {
         // RenderComponents are ordered by packing DrawableSettings into a long and then using that value to sort with.
         // based on this wonderful article! http://realtimecollisiondetection.net/blog/?p=86
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        private struct DrawableSettings {
+        struct DrawableSettings {
             // fields are listed least- to most important. e.g. transparency has a higher impact on order than renderstate.
             [BitfieldLength(32)]
             public uint RenderState;

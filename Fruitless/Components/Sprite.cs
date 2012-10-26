@@ -3,6 +3,8 @@ using System.Drawing;
 using ComponentKit.Model;
 using OpenTK;
 using OpenTK.Graphics;
+using Fruitless.Utility;
+using System.Runtime.InteropServices;
 
 namespace Fruitless.Components {
     public class Sprite : DependencyComponent, IComparable<Sprite> {
@@ -177,7 +179,10 @@ namespace Fruitless.Components {
         }
 
         public override string ToString() {
-            return String.Format("{0}", _texture != null ?  _texture.Filename : "void");
+            return String.Format("{0}", 
+                _texture != null ?  
+                    _texture.Filename : 
+                    "void");
         }
     }
 }
