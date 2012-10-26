@@ -5,6 +5,10 @@ using System.Drawing;
 namespace Fruitless {
     public class PerspectiveCamera : Camera {
         // no
+        public override void Clear() {
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            GL.ClearColor(Background);
+        }
     }
 
     public abstract class Camera : ICamera {
@@ -16,10 +20,7 @@ namespace Fruitless {
             return new PerspectiveCamera();
         }
 
-        public void Clear() {
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            GL.ClearColor(Background);
-        }
+        public abstract void Clear();
 
         public virtual OpenTK.Graphics.Color4 Background {
             get;

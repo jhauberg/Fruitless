@@ -1,5 +1,6 @@
 ﻿using OpenTK;
 using System.Drawing;
+using OpenTK.Graphics.OpenGL;
 
 namespace Fruitless {
     public class OrthographicCamera : Camera {
@@ -15,6 +16,11 @@ namespace Fruitless {
         void Build() {
             _projection = Matrix4.CreateOrthographic(Bounds.Width, Bounds.Height, -1f, 1f);
             _view = Matrix4.Identity;
+        }
+
+        public override void Clear() {
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            GL.ClearColor(Background);
         }
 
         public Size Bounds {
