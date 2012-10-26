@@ -44,11 +44,12 @@ namespace Labs {
                 component => component is Sprite,
                 (sender, args) => {
                     foreach (Sprite sprite in args.AttachedComponents.ToList()) {
+                        /*
                         SpriteDebug debug = new SpriteDebug();
                         {
                             sprite.Record.Add(debug);
                             spriteBatch.Add(debug);
-                        }
+                        }*/
                     }
 
                     foreach (Sprite sprite in args.DettachedComponents.ToList()) {

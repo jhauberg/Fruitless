@@ -36,14 +36,23 @@ namespace Labs {
             _context.Registry.Removed += OnEntityRemoved;
             
             Sprite sprite = new Sprite() {
+                Layer = 1,
+
                 Texture = Texture.FromFile("fruitless-logo.png")
             };
-            
+
+            Sprite frameSprite = new Sprite() {
+                Layer = 2,
+                Bounds = new Size(64, 64),
+
+                Texture = Texture.FromFile("frame.png")
+            };
+
             Sprite backgroundSprite = new Sprite() {
-                Layer = -1,
+                Layer = 0,
                 Repeats = true,
                 Bounds = new Size(
-                    _context.Bounds.Width, 
+                    (int)(_context.Bounds.Width * 0.75f), 
                     _context.Bounds.Height),
 
                 Texture = Texture.FromFile("tile.png")
@@ -51,8 +60,9 @@ namespace Labs {
 
             SpriteBatch spriteBatch = new SpriteBatch();
             {
+                spriteBatch.Add(backgroundSprite);
                 spriteBatch.Add(sprite);
-                spriteBatch.Add(backgroundSprite);   
+                spriteBatch.Add(frameSprite);
             }
 
             Entity.Create("logo", sprite, new Bounce());
