@@ -112,5 +112,10 @@ namespace Fruitless {
             get;
             private set;
         }
+
+        public override string ToString() {
+            return String.Format("{0}",
+                Filename);
+        }
     }
 }
