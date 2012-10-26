@@ -19,7 +19,7 @@ namespace Fruitless {
         }
 
         public override void Clear() {
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            GL.Clear(ClearBufferMask.ColorBufferBit);
             GL.ClearColor(Background);
         }
 
