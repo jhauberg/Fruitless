@@ -18,6 +18,7 @@ namespace Fruitless.Components {
             AnchorFromCenter;
 
         public event EventHandler<TextureChangedEventArgs> TextureChanged;
+        public event EventHandler<LayerChangedEventArgs> LayerChanged;
 
         [RequireComponent]
         Transformable2D _transform = null;
@@ -28,9 +29,27 @@ namespace Fruitless.Components {
             Layer = 0;
         }
 
+        protected override void OnAdded(ComponentStateEventArgs registrationArgs) {
+            base.OnAdded(registrationArgs);
+
+            System.Diagnostics.Debug.WriteLine("added component: " + ToString());
+        }
+
+        protected override void OnRemoved(ComponentStateEventArgs registrationArgs) {
+            base.OnRemoved(registrationArgs);
+
+            System.Diagnostics.Debug.WriteLine("removed component: " + ToString());
+        }
+
         protected void OnTextureChanged(TextureChangedEventArgs eventArgs) {
             if (TextureChanged != null) {
                 TextureChanged(this, eventArgs);
+            }
+        }
+
+        protected void OnLayerChanged(LayerChangedEventArgs eventArgs) {
+            if (LayerChanged != null) {
+                LayerChanged(this, eventArgs);
             }
         }
 
@@ -62,9 +81,9 @@ namespace Fruitless.Components {
                 return _texture;
             }
             set {
-                Texture previousTexture = _texture;
-
                 if (_texture != value) {
+                    Texture previousTexture = _texture;
+
                     _texture = value;
 
                     if (_texture != null) {
@@ -85,7 +104,9 @@ namespace Fruitless.Components {
 
                     IsDirty = true;
 
-                    OnTextureChanged(new TextureChangedEventArgs(previousTexture, _texture));
+                    OnTextureChanged(new TextureChangedEventArgs(
+                        previousTexture, 
+                        _texture));
                 }
             }
         }
@@ -130,7 +151,7 @@ namespace Fruitless.Components {
         /// <summary>
         /// A rectangle that specifies to only use a part of the texture.
         /// </summary>
-        public Rectangle SourceRectangle {
+        public Rectangle TextureSourceRectangle {
             get {
                 return _sourceRectangle;
             }
@@ -174,9 +195,15 @@ namespace Fruitless.Components {
             }
             set {
                 if (_layer != value) {
+                    int previousLayer = _layer;
+
                     _layer = value;
 
                     IsDirty = true;
+
+                    OnLayerChanged(new LayerChangedEventArgs(
+                        previousLayer, 
+                        _layer));
                 }
             }
         }
