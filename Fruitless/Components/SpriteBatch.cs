@@ -94,6 +94,26 @@ namespace Fruitless.Components {
             }
         }
 
+        void Build(ICamera camera) {
+            Build(camera, all: false);
+        }
+
+        void Build(ICamera camera, bool all) {
+            _sprites.Sort();
+
+            foreach (Sprite sprite in _sprites) {
+                if (all || sprite.Transform != null && sprite.Transform.WasInvalidated) {
+                    TransformPositions(sprite, camera);
+                }
+
+                if (all || sprite.IsDirty) {
+                    CalculateTextureCoordinates(sprite);
+
+                    sprite.IsDirty = false;
+                }
+            }
+        }
+
         void CreateBufferObjects() {
             DeleteBufferObjects();
 
@@ -102,12 +122,7 @@ namespace Fruitless.Components {
             // since we're being lazy and just create a brand new vertex array every time a single sprite is added,
             // we better make sure to also do all the calculations again... (otherwise, the first sprites added
             // may never be represented correctly in the vertexbuffer if they never become Dirty or Invalidated!)
-            foreach (Sprite sprite in _sprites) {
-                TransformPositions(sprite, camera: null);
-                CalculateTextureCoordinates(sprite);
-
-                sprite.IsDirty = false;
-            }
+            Build(null, all: true);
             
             GL.GenBuffers(1, out _vbo);
             GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo);
@@ -248,22 +263,6 @@ namespace Fruitless.Components {
             _vertices[offset + 3].Color = tint;
             _vertices[offset + 4].Color = tint;
             _vertices[offset + 5].Color = tint;
-        }
-
-        private void Build(ICamera camera) {
-            _sprites.Sort();
-
-            foreach (Sprite sprite in _sprites) {
-                if (sprite.Transform != null && sprite.Transform.WasInvalidated) {
-                    TransformPositions(sprite, camera);
-                }
-
-                if (sprite.IsDirty) {
-                    CalculateTextureCoordinates(sprite);
-
-                    sprite.IsDirty = false;
-                }
-            }
         }
 
         public override void Render(ICamera camera) {
