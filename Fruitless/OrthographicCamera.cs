@@ -9,13 +9,32 @@ namespace Fruitless {
         
         Size _boundsInPixels;
 
+        float _zoom;
+
+        public float Scale {
+            get {
+                return _zoom;
+            }
+            set {
+                if (_zoom != value) {
+                    _zoom = value;
+                    
+                    Build();
+                }
+            }
+        }
+
         public OrthographicCamera(Size boundsInPixels) {
             Bounds = boundsInPixels;
+            Scale = 1.0f;
         }
 
         void Build() {
-            _projection = Matrix4.CreateOrthographic(Bounds.Width, Bounds.Height, -1f, 1f);
             _view = Matrix4.Identity;
+            _projection = Matrix4.CreateOrthographic(
+                Bounds.Width * (1.0f * Scale), 
+                Bounds.Height * (1.0f * Scale), 
+                -1f, 1f);
         }
 
         public override void Clear() {
