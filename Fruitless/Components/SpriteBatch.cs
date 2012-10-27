@@ -54,7 +54,7 @@ namespace Fruitless.Components {
         int s_textureHandle;
 
         uint _vbo;
-        VertexPositionColorTexture[] _verticess;
+        VertexPositionColorTexture[] _vertices;
 
         List<Sprite> _sprites =
             new List<Sprite>();
@@ -124,10 +124,10 @@ namespace Fruitless.Components {
                 float horizontalOffset = sprite.Bounds.Width * -sprite.Anchor.X;
                 float verticalOffset = sprite.Bounds.Height * -sprite.Anchor.Y;
 
-                Vector3 br = new Vector3(horizontalOffset + halfWidth, verticalOffset - halfHeight, sprite.Layer * 0.001f);
-                Vector3 tl = new Vector3(horizontalOffset - halfWidth, verticalOffset + halfHeight, sprite.Layer * 0.001f);
-                Vector3 bl = new Vector3(horizontalOffset - halfWidth, verticalOffset - halfHeight, sprite.Layer * 0.001f);
-                Vector3 tr = new Vector3(horizontalOffset + halfWidth, verticalOffset + halfHeight, sprite.Layer * 0.001f);
+                Vector3 br = new Vector3(horizontalOffset + halfWidth, verticalOffset - halfHeight, 0);
+                Vector3 tl = new Vector3(horizontalOffset - halfWidth, verticalOffset + halfHeight, 0);
+                Vector3 bl = new Vector3(horizontalOffset - halfWidth, verticalOffset - halfHeight, 0);
+                Vector3 tr = new Vector3(horizontalOffset + halfWidth, verticalOffset + halfHeight, 0);
 
                 RectangleF rect = new RectangleF(
                     sprite.Frame.X,
@@ -181,34 +181,34 @@ namespace Fruitless.Components {
                 int v1 = offset + 1;
                 int v2 = offset + 2;
 
-                _verticess[v0].Position = Vector3.Transform(tl, modelView);
-                _verticess[v1].Position = Vector3.Transform(br, modelView);
-                _verticess[v2].Position = Vector3.Transform(bl, modelView);
+                _vertices[v0].Position = Vector3.Transform(tl, modelView);
+                _vertices[v1].Position = Vector3.Transform(br, modelView);
+                _vertices[v2].Position = Vector3.Transform(bl, modelView);
 
-                _verticess[v0].TextureCoordinate = textl;
-                _verticess[v1].TextureCoordinate = texbr;
-                _verticess[v2].TextureCoordinate = texbl;
+                _vertices[v0].TextureCoordinate = textl;
+                _vertices[v1].TextureCoordinate = texbr;
+                _vertices[v2].TextureCoordinate = texbl;
 
-                _verticess[v0].Color = tint;
-                _verticess[v1].Color = tint;
-                _verticess[v2].Color = tint;
+                _vertices[v0].Color = tint;
+                _vertices[v1].Color = tint;
+                _vertices[v2].Color = tint;
                     
                 // second triangle (cw)
                 v0 = offset + 3;
                 v1 = offset + 4;
                 v2 = offset + 5;
 
-                _verticess[v0].Position = Vector3.Transform(tl, modelView);
-                _verticess[v1].Position = Vector3.Transform(tr, modelView);
-                _verticess[v2].Position = Vector3.Transform(br, modelView);
+                _vertices[v0].Position = Vector3.Transform(tl, modelView);
+                _vertices[v1].Position = Vector3.Transform(tr, modelView);
+                _vertices[v2].Position = Vector3.Transform(br, modelView);
 
-                _verticess[v0].TextureCoordinate = textl;
-                _verticess[v1].TextureCoordinate = textr;
-                _verticess[v2].TextureCoordinate = texbr;
+                _vertices[v0].TextureCoordinate = textl;
+                _vertices[v1].TextureCoordinate = textr;
+                _vertices[v2].TextureCoordinate = texbr;
 
-                _verticess[v0].Color = tint;
-                _verticess[v1].Color = tint;
-                _verticess[v2].Color = tint;
+                _vertices[v0].Color = tint;
+                _vertices[v1].Color = tint;
+                _vertices[v2].Color = tint;
             }
         }
 
@@ -226,33 +226,35 @@ namespace Fruitless.Components {
                 {
                     GL.BufferSubData(BufferTarget.ArrayBuffer,
                         IntPtr.Zero,
-                        new IntPtr(_verticess.Length * VertexPositionColorTexture.SizeInBytes),
-                        _verticess);
+                        new IntPtr(_vertices.Length * VertexPositionColorTexture.SizeInBytes),
+                        _vertices);
                
                     if (_sprites.Count > 0) {
                         int startingOffset = 0;
-                        Texture currentTexture = null, oldTexture = null;
+
+                        Texture currentTexture = null;
+                        Texture previousTexture = null;
 
                         for (int i = startingOffset; i < _sprites.Count; i++) {
                             Sprite sprite = _sprites[i];
 
                             currentTexture = sprite.Texture;
 
-                            if (currentTexture != oldTexture) {
+                            if (currentTexture != previousTexture) {
                                 if (i > startingOffset) {
-                                    RenderSprites(oldTexture,
-                                        startingOffset,
-                                        (i + 1) - startingOffset);
+                                    RenderSprites(previousTexture,
+                                        fromIndex: startingOffset,
+                                        amount: (i + 1) - startingOffset);
                                 }
 
-                                oldTexture = currentTexture;
+                                previousTexture = currentTexture;
                                 startingOffset = i;
                             }
                         }
-
+                        
                         RenderSprites(currentTexture, 
-                            startingOffset, 
-                            _sprites.Count - startingOffset);
+                            fromIndex: startingOffset, 
+                            amount: _sprites.Count - startingOffset);
                     }
                 }
                 GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
@@ -317,14 +319,14 @@ namespace Fruitless.Components {
         void CreateBufferObjects() {
             DeleteBufferObjects();
 
-            _verticess = new VertexPositionColorTexture[_sprites.Count * 2 * 3];
+            _vertices = new VertexPositionColorTexture[_sprites.Count * 2 * 3];
 
             GL.GenBuffers(1, out _vbo);
             GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo);
             {
                 GL.BufferData(BufferTarget.ArrayBuffer,
-                    new IntPtr(_verticess.Length * VertexPositionColorTexture.SizeInBytes),
-                    _verticess,
+                    new IntPtr(_vertices.Length * VertexPositionColorTexture.SizeInBytes),
+                    _vertices,
                     BufferUsageHint.DynamicDraw);
             }
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
