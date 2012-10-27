@@ -150,7 +150,7 @@ namespace Fruitless.Components {
                         sprite.Repeats ?
                             (int)TextureWrapMode.Repeat :
                             (int)TextureWrapMode.ClampToEdge);
-
+                    
                     if (sprite.Repeats) {
                         uvScaleX = (float)sprite.Bounds.Width / (float)sprite.Frame.Size.Width;
                         uvScaleY = (float)sprite.Bounds.Height / (float)sprite.Frame.Size.Height;
@@ -244,7 +244,7 @@ namespace Fruitless.Components {
                                 if (i > startingOffset) {
                                     RenderSprites(previousTexture,
                                         fromIndex: startingOffset,
-                                        amount: (i + 1) - startingOffset);
+                                        amount: i - startingOffset);
                                 }
 
                                 previousTexture = currentTexture;
