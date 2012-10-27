@@ -10,7 +10,7 @@ namespace Fruitless.Components {
         }
 
         public void ApplyTransformation() {
-            IsInvalidated = false;
+            WasInvalidated = false;
 
             bool shouldResolveWorldTransformation = RequiresWorldResolution;
 
@@ -18,7 +18,7 @@ namespace Fruitless.Components {
                 TransformationComponent parent = _parent;
 
                 while (parent != null) {
-                    if (parent.IsInvalidated) {
+                    if (parent.WasInvalidated) {
                         RequiresWorldResolution = true;
 
                         break;
@@ -32,10 +32,10 @@ namespace Fruitless.Components {
                 Matrix4 parentWorld = Matrix4.Identity;
 
                 if (_parent != null) {
-                    bool parentWasInvalidated = _parent.IsInvalidated;
+                    bool parentWasInvalidated = _parent.WasInvalidated;
 
                     _parent.ApplyTransformation();
-                    _parent.IsInvalidated = parentWasInvalidated;
+                    _parent.WasInvalidated = parentWasInvalidated;
 
                     parentWorld = _parent.World;
                 }
@@ -44,7 +44,7 @@ namespace Fruitless.Components {
                 World = parentWorld * Local;
 
                 RequiresWorldResolution = false;
-                IsInvalidated = true;
+                WasInvalidated = true;
             }
         }
 
@@ -52,8 +52,8 @@ namespace Fruitless.Components {
             get;
             set;
         }
-        // todo: better wording
-        public bool IsInvalidated {
+        
+        public bool WasInvalidated {
             get;
             set;
         }
