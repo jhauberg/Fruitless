@@ -73,13 +73,13 @@ namespace Fruitless.Components {
                             _texture.Width,
                             _texture.Height);
 
-                        if (_bounds == Size.Empty) {
-                            _bounds = textureSize;
+                        if (_size == Size.Empty) {
+                            _size = textureSize;
                         }
 
                         // default to show the entire texture
-                        if (_frame == Rectangle.Empty) {
-                            _frame = new Rectangle(Point.Empty, textureSize);
+                        if (_sourceRectangle == Rectangle.Empty) {
+                            _sourceRectangle = new Rectangle(Point.Empty, textureSize);
                         }
                     }
 
@@ -92,6 +92,11 @@ namespace Fruitless.Components {
 
         Vector2 _anchor;
 
+        /// <summary>
+        /// The relative point at which the sprite has its center.
+        /// 
+        /// Defaults to AnchorFromCenter (0, 0).
+        /// </summary>
         public Vector2 Anchor {
             get {
                 return _anchor;
@@ -120,30 +125,36 @@ namespace Fruitless.Components {
             }
         }
 
-        Rectangle _frame = Rectangle.Empty;
+        Rectangle _sourceRectangle = Rectangle.Empty;
 
-        public Rectangle Frame {
+        /// <summary>
+        /// A rectangle that specifies to only use a part of the texture.
+        /// </summary>
+        public Rectangle SourceRectangle {
             get {
-                return _frame;
+                return _sourceRectangle;
             }
             set {
-                if (_frame != value) {
-                    _frame = value;
+                if (_sourceRectangle != value) {
+                    _sourceRectangle = value;
 
                     IsDirty = true;
                 }
             }
         }
 
-        Size _bounds = Size.Empty;
+        Size _size = Size.Empty;
 
-        public Size Bounds {
+        /// <summary>
+        /// The size of the sprite in pixels.
+        /// </summary>
+        public Size Size {
             get {
-                return _bounds;
+                return _size;
             }
             set {
-                if (_bounds != value) {
-                    _bounds = value;
+                if (_size != value) {
+                    _size = value;
 
                     IsDirty = true;
                 }
@@ -152,6 +163,11 @@ namespace Fruitless.Components {
 
         int _layer;
 
+        /// <summary>
+        /// Determines the order that this sprite gets drawn in.
+        /// 
+        /// Higher is later.
+        /// </summary>
         public int Layer {
             get {
                 return _layer;
