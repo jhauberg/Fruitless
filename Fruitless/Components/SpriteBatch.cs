@@ -8,6 +8,10 @@ using OpenTK.Graphics.OpenGL;
 
 namespace Fruitless.Components {
     // http://gamedev.stackexchange.com/questions/21220/how-exactly-does-xnas-spritebatch-work
+
+    /// <summary>
+    /// Provides an efficient way of rendering many sprites with as few draw calls as possible.
+    /// </summary>
     public class SpriteBatch : RenderComponent {
         static readonly string VertexShaderSource =
             @"
@@ -44,7 +48,7 @@ namespace Fruitless.Components {
 			}
 			";
 
-        int shaderProgramHandle, vertexShaderHandle, fragmentShaderHandle;
+        int _shaderProgramHandle, _vertexShaderHandle, _fragmentShaderHandle;
 
         int a_positionHandle;
         int a_textureCoordHandle;
@@ -56,17 +60,10 @@ namespace Fruitless.Components {
         uint _vbo;
         VertexPositionColorTexture[] _vertices;
 
-        List<Sprite> _sprites =
-            new List<Sprite>();
+        List<Sprite> _sprites = new List<Sprite>();
 
         [RequireComponent]
         Transformable2D _transform = null;
-
-        public Transformable2D Transform {
-            get {
-                return _transform;
-            }
-        }
 
         public SpriteBatch() {
             RenderState = RenderStates.Sprite;
@@ -82,10 +79,6 @@ namespace Fruitless.Components {
         }
 
         public void Add(Sprite sprite) {
-            if (sprite.Texture.TextureID == -1) {
-                throw new ArgumentException("TextureID");
-            }
-
             if (!_sprites.Contains(sprite)) {
                 _sprites.Add(sprite);
 
@@ -99,6 +92,51 @@ namespace Fruitless.Components {
                     CreateBufferObjects();
                 }
             }
+        }
+
+        void CreateShaderPrograms() {
+            _shaderProgramHandle = GL.CreateProgram();
+
+            _vertexShaderHandle = GL.CreateShader(ShaderType.VertexShader);
+            _fragmentShaderHandle = GL.CreateShader(ShaderType.FragmentShader);
+
+            GL.ShaderSource(_vertexShaderHandle, VertexShaderSource);
+            GL.ShaderSource(_fragmentShaderHandle, FragmentShaderSource);
+
+            GL.CompileShader(_vertexShaderHandle);
+            GL.CompileShader(_fragmentShaderHandle);
+
+            GL.AttachShader(_shaderProgramHandle, _vertexShaderHandle);
+            GL.AttachShader(_shaderProgramHandle, _fragmentShaderHandle);
+
+            GL.LinkProgram(_shaderProgramHandle);
+
+            a_positionHandle = GL.GetAttribLocation(_shaderProgramHandle, "a_position");
+            a_textureCoordHandle = GL.GetAttribLocation(_shaderProgramHandle, "a_textureCoord");
+            a_tintHandle = GL.GetAttribLocation(_shaderProgramHandle, "a_tintColor");
+
+            u_mvpHandle = GL.GetUniformLocation(_shaderProgramHandle, "u_mvp");
+            s_textureHandle = GL.GetUniformLocation(_shaderProgramHandle, "s_texture");
+        }
+
+        void CreateBufferObjects() {
+            DeleteBufferObjects();
+
+            _vertices = new VertexPositionColorTexture[_sprites.Count * 2 * 3];
+
+            GL.GenBuffers(1, out _vbo);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo);
+            {
+                GL.BufferData(BufferTarget.ArrayBuffer,
+                    new IntPtr(_vertices.Length * VertexPositionColorTexture.SizeInBytes),
+                    _vertices,
+                    BufferUsageHint.DynamicDraw);
+            }
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+        }
+
+        void DeleteBufferObjects() {
+            GL.DeleteBuffer(_vbo);
         }
 
         private void Build(ICamera camera) {
@@ -135,47 +173,55 @@ namespace Fruitless.Components {
                     sprite.Frame.Width * 2,
                     sprite.Frame.Height * 2);
 
-                float uvScaleX = 1;
-                float uvScaleY = 1;
-
-                GL.BindTexture(TextureTarget.Texture2D, sprite.Texture.TextureID);
-                {
-                    // this needs to occur every time, because when using the same texture one sprite may want to repeat while another does not.
-                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS,
-                        sprite.Repeats ?
-                            (int)TextureWrapMode.Repeat :
-                            (int)TextureWrapMode.ClampToEdge);
-
-                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT,
-                        sprite.Repeats ?
-                            (int)TextureWrapMode.Repeat :
-                            (int)TextureWrapMode.ClampToEdge);
-                    
-                    if (sprite.Repeats) {
-                        uvScaleX = (float)sprite.Bounds.Width / (float)sprite.Frame.Size.Width;
-                        uvScaleY = (float)sprite.Bounds.Height / (float)sprite.Frame.Size.Height;
-                    }
-                }
-                GL.BindTexture(TextureTarget.Texture2D, 0);
-
-                Vector2 textl = new Vector2(
-                    ((2 * rect.X + 1) / (2 * sprite.Texture.Width)) * uvScaleX,
-                    ((2 * rect.Y + 1) / (2 * sprite.Texture.Height)) * uvScaleY);
-                Vector2 texbr = new Vector2(
-                    ((2 * rect.X + 1 + rect.Width - 2) / (2 * sprite.Texture.Width)) * uvScaleX,
-                    ((2 * rect.Y + 1 + rect.Height - 2) / (2 * sprite.Texture.Height)) * uvScaleY);
-
-                Vector2 texbl = new Vector2(textl.X, texbr.Y);
-                Vector2 textr = new Vector2(texbr.X, textl.Y);
-
-                int offset = i * 2 * 3;
-                    
                 Vector4 tint = new Vector4(
                     sprite.TintColor.R,
                     sprite.TintColor.G,
                     sprite.TintColor.B,
                     sprite.TintColor.A);
-                    
+
+                Vector2 textl = Vector2.Zero;
+                Vector2 texbr = Vector2.Zero;
+
+                Vector2 texbl = Vector2.Zero;
+                Vector2 textr = Vector2.Zero;
+
+                if (sprite.Texture != null) {
+                    float uvScaleX = 1;
+                    float uvScaleY = 1;
+
+                    GL.BindTexture(TextureTarget.Texture2D, sprite.Texture.TextureID);
+                    {
+                        // this needs to occur every time, because when using the same texture one sprite may want to repeat while another does not.
+                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS,
+                            sprite.Repeats ?
+                                (int)TextureWrapMode.Repeat :
+                                (int)TextureWrapMode.ClampToEdge);
+
+                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT,
+                            sprite.Repeats ?
+                                (int)TextureWrapMode.Repeat :
+                                (int)TextureWrapMode.ClampToEdge);
+
+                        if (sprite.Repeats) {
+                            uvScaleX = (float)sprite.Bounds.Width / (float)sprite.Frame.Size.Width;
+                            uvScaleY = (float)sprite.Bounds.Height / (float)sprite.Frame.Size.Height;
+                        }
+                    }
+                    GL.BindTexture(TextureTarget.Texture2D, 0);
+
+                    textl = new Vector2(
+                        ((2 * rect.X + 1) / (2 * sprite.Texture.Width)) * uvScaleX,
+                        ((2 * rect.Y + 1) / (2 * sprite.Texture.Height)) * uvScaleY);
+                    texbr = new Vector2(
+                        ((2 * rect.X + 1 + rect.Width - 2) / (2 * sprite.Texture.Width)) * uvScaleX,
+                        ((2 * rect.Y + 1 + rect.Height - 2) / (2 * sprite.Texture.Height)) * uvScaleY);
+
+                    texbl = new Vector2(textl.X, texbr.Y);
+                    textr = new Vector2(texbr.X, textl.Y);
+                }
+
+                int offset = i * 2 * 3;
+                                        
                 // first triangle (cw)
                 int v0 = offset + 0;
                 int v1 = offset + 1;
@@ -215,7 +261,7 @@ namespace Fruitless.Components {
         public override void Render(ICamera camera) {
             Build(camera);
             
-            GL.UseProgram(shaderProgramHandle);
+            GL.UseProgram(_shaderProgramHandle);
             {
                 Matrix4 world = Transform.World;
                 Matrix4 mvp = world * camera.View * camera.Projection;
@@ -264,7 +310,7 @@ namespace Fruitless.Components {
 
         void RenderSprites(Texture texture, int fromIndex, int amount) {
             GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, texture.TextureID);
+            GL.BindTexture(TextureTarget.Texture2D, texture != null ? texture.TextureID : 0);
             GL.Uniform1(s_textureHandle, 0);
             {
                 GL.EnableVertexAttribArray(a_positionHandle);
@@ -286,54 +332,10 @@ namespace Fruitless.Components {
             GL.BindTexture(TextureTarget.Texture2D, 0);
         }
 
-        void CreateShaderPrograms() {
-            shaderProgramHandle = GL.CreateProgram();
-
-            vertexShaderHandle = GL.CreateShader(ShaderType.VertexShader);
-            fragmentShaderHandle = GL.CreateShader(ShaderType.FragmentShader);
-
-            GL.ShaderSource(vertexShaderHandle, VertexShaderSource);
-            GL.ShaderSource(fragmentShaderHandle, FragmentShaderSource);
-
-            GL.CompileShader(vertexShaderHandle);
-            GL.CompileShader(fragmentShaderHandle);
-
-            Console.WriteLine(GL.GetShaderInfoLog(vertexShaderHandle));
-            Console.WriteLine(GL.GetShaderInfoLog(fragmentShaderHandle));
-
-            GL.AttachShader(shaderProgramHandle, vertexShaderHandle);
-            GL.AttachShader(shaderProgramHandle, fragmentShaderHandle);
-
-            GL.LinkProgram(shaderProgramHandle);
-
-            Console.WriteLine(GL.GetProgramInfoLog(shaderProgramHandle));
-
-            a_positionHandle = GL.GetAttribLocation(shaderProgramHandle, "a_position");
-            a_textureCoordHandle = GL.GetAttribLocation(shaderProgramHandle, "a_textureCoord");
-            a_tintHandle = GL.GetAttribLocation(shaderProgramHandle, "a_tintColor");
-
-            u_mvpHandle = GL.GetUniformLocation(shaderProgramHandle, "u_mvp");
-            s_textureHandle = GL.GetUniformLocation(shaderProgramHandle, "s_texture");
-        }
-
-        void CreateBufferObjects() {
-            DeleteBufferObjects();
-
-            _vertices = new VertexPositionColorTexture[_sprites.Count * 2 * 3];
-
-            GL.GenBuffers(1, out _vbo);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo);
-            {
-                GL.BufferData(BufferTarget.ArrayBuffer,
-                    new IntPtr(_vertices.Length * VertexPositionColorTexture.SizeInBytes),
-                    _vertices,
-                    BufferUsageHint.DynamicDraw);
+        public Transformable2D Transform {
+            get {
+                return _transform;
             }
-            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-        }
-
-        void DeleteBufferObjects() {
-            GL.DeleteBuffer(_vbo);
         }
     }
 }
