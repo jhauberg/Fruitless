@@ -83,6 +83,8 @@ namespace Fruitless.Components {
                         }
                     }
 
+                    IsDirty = true;
+
                     OnTextureChanged(new TextureChangedEventArgs(previousTexture, _texture));
                 }
             }
@@ -165,7 +167,7 @@ namespace Fruitless.Components {
 
         public bool IsDirty {
             get;
-            private set;
+            set;
         }
 
         public int CompareTo(Sprite other) {
