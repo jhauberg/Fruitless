@@ -81,14 +81,32 @@ namespace Fruitless.Components {
         public void Add(Sprite sprite) {
             if (!_sprites.Contains(sprite)) {
                 _sprites.Add(sprite);
+                
+                sprite.LayerChanged += OnSpriteLayerChanged;
+                sprite.Removed += OnSpriteRemoved;
+
+                _sprites.Sort();
 
                 CreateBufferObjects();
             }
         }
 
+        void OnSpriteRemoved(object sender, ComponentStateEventArgs e) {
+            Remove(sender as Sprite);
+        }
+
+        void OnSpriteLayerChanged(object sender, LayerChangedEventArgs e) {
+            _sprites.Sort();
+
+            CreateBufferObjects();
+        }
+
         public void Remove(Sprite sprite) {
             if (_sprites.Contains(sprite)) {
                 if (_sprites.Remove(sprite)) {
+                    sprite.LayerChanged -= OnSpriteLayerChanged;
+                    sprite.Removed -= OnSpriteRemoved;
+
                     CreateBufferObjects();
                 }
             }
@@ -99,8 +117,6 @@ namespace Fruitless.Components {
         }
 
         void Build(ICamera camera, bool all) {
-            _sprites.Sort();
-
             foreach (Sprite sprite in _sprites) {
                 if (all || sprite.Transform != null && sprite.Transform.WasInvalidated) {
                     TransformPositions(sprite, camera);
@@ -194,10 +210,10 @@ namespace Fruitless.Components {
 
         void CalculateTextureCoordinates(Sprite sprite) {
             RectangleF sourceFrame = new RectangleF(
-                sprite.SourceRectangle.X,
-                sprite.SourceRectangle.Y,
-                sprite.SourceRectangle.Width * 2,
-                sprite.SourceRectangle.Height * 2);
+                sprite.TextureSourceRectangle.X,
+                sprite.TextureSourceRectangle.Y,
+                sprite.TextureSourceRectangle.Width * 2,
+                sprite.TextureSourceRectangle.Height * 2);
 
             Vector2 tl = Vector2.Zero;
             Vector2 br = Vector2.Zero;
@@ -223,21 +239,21 @@ namespace Fruitless.Components {
                             (int)TextureWrapMode.ClampToEdge);
 
                     if (sprite.Repeats) {
-                        uvScaleX = (float)sprite.Size.Width / (float)sprite.SourceRectangle.Size.Width;
-                        uvScaleY = (float)sprite.Size.Height / (float)sprite.SourceRectangle.Size.Height;
+                        uvScaleX = (float)sprite.Size.Width / (float)sprite.TextureSourceRectangle.Size.Width;
+                        uvScaleY = (float)sprite.Size.Height / (float)sprite.TextureSourceRectangle.Size.Height;
                     }
                 }
                 GL.BindTexture(TextureTarget.Texture2D, 0);
 
-                int w = sprite.Texture.Width;
-                int h = sprite.Texture.Height;
+                int w = 2 * sprite.Texture.Width;
+                int h = 2 * sprite.Texture.Height;
 
                 tl = new Vector2(
-                    ((2 * sourceFrame.X + 1) / (2 * w)) * uvScaleX,
-                    ((2 * sourceFrame.Y + 1) / (2 * h)) * uvScaleY);
+                    ((2 * sourceFrame.X + 1) / w) * uvScaleX,
+                    ((2 * sourceFrame.Y + 1) / h) * uvScaleY);
                 br = new Vector2(
-                    ((2 * sourceFrame.X + 1 + sourceFrame.Width - 2) / (2 * w)) * uvScaleX,
-                    ((2 * sourceFrame.Y + 1 + sourceFrame.Height - 2) / (2 * h)) * uvScaleY);
+                    ((2 * sourceFrame.X + 1 + sourceFrame.Width - 2) / w) * uvScaleX,
+                    ((2 * sourceFrame.Y + 1 + sourceFrame.Height - 2) / h) * uvScaleY);
 
                 bl = new Vector2(tl.X, br.Y);
                 tr = new Vector2(br.X, tl.Y);
