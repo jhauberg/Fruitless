@@ -11,6 +11,51 @@ using Fruitless.Components;
 using ComponentKit;
 
 namespace Labs {
+    internal class IsPulledByGravity : TimelineComponent {
+        [RequireComponent]
+        HasVelocity _transform = null;
+
+        Vector2 _gravity = new Vector2(0, -9.81f);
+
+        public override void Advance(TimeSpan delta) {
+            float elapsed = (float)delta.TotalSeconds;
+
+            Vector2 force = _gravity * elapsed;
+
+            _transform.Velocity += force;
+        }
+    }
+
+    internal class HasVelocity : TimelineComponent {
+        [RequireComponent]
+        Transformable2D _transform = null;
+
+        Vector2 _velocity = Vector2.Zero;
+
+        public Vector2 Velocity {
+            get {
+                return _velocity;
+            }
+            set {
+                if (_velocity != value) {
+                    _velocity = value;
+                }
+            }
+        }
+
+        public override void Advance(TimeSpan delta) {
+            _transform.Position += _velocity;
+
+            if (_transform.Position.Y < -200) {
+                _velocity.Y = -_velocity.Y * 0.99f;
+            }
+
+            if (_transform.Position.X < -240 || _transform.Position.X > 240) {
+                _velocity.X = -_velocity.X * 0.99f;
+            }
+        }
+    }
+
     internal class Program : GameWindow {
         EditableGameContext _context;
 
@@ -43,7 +88,7 @@ namespace Labs {
 
             Sprite frameSprite = new Sprite() {
                 Layer = 2,
-                Bounds = new Size(64, 64),
+                Size = new Size(64, 64),
 
                 Texture = Texture.FromFile("frame.png")
             };
@@ -51,8 +96,8 @@ namespace Labs {
             Sprite backgroundSprite = new Sprite() {
                 Layer = 0,
                 Repeats = true,
-                Bounds = new Size(
-                    (int)(_context.Bounds.Width * 0.75f), 
+                Size = new Size(
+                    _context.Bounds.Width, 
                     _context.Bounds.Height),
 
                 Texture = Texture.FromFile("tile.png")
@@ -68,6 +113,32 @@ namespace Labs {
             Entity.Create("logo", sprite, new Bounce());
             Entity.Create("background", backgroundSprite);
             Entity.Create("batcher batcher batcher!", spriteBatch);
+
+            Random r = new Random();
+
+            for (int i = 3; i < 1003; i++) {
+                Sprite s = new Sprite() {
+                    Layer = i,
+
+                    Size = new Size(240 / 2, 48 / 2),
+
+                    Texture = Texture.FromFile("fruitless-logo.png")
+                };
+
+                spriteBatch.Add(s);
+
+                Entity.Create("" + i, 
+                    s, 
+                    new Spin() { 
+                        Speed = 0.0075f * (float)r.NextDouble() 
+                    }, 
+                    new HasVelocity() {
+                        Velocity = new Vector2(
+                            (r.Next(0, 8) * (r.Next(0, 2) > 0 ? 1 : -1)) * (float)r.NextDouble(),
+                            (r.Next(2, 14)) * (float)r.NextDouble())
+                    },
+                    new IsPulledByGravity());
+            }
         }
 
         void OnEntityEntered(object sender, EntityEventArgs e) {
