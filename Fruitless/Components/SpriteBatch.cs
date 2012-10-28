@@ -71,11 +71,8 @@ namespace Fruitless.Components {
             Layer = 0;
             LayerDepth = 0;
             IsTransparent = false;
-        }
 
-        public override void Reset() {
             CreateShaderPrograms();
-            CreateBufferObjects();
         }
 
         public void Add(Sprite sprite) {
@@ -285,6 +282,11 @@ namespace Fruitless.Components {
         }
 
         public override void Render(ICamera camera) {
+            if (_vbo == 0 || 
+                _shaderProgramHandle == 0) {
+                return;
+            }
+
             Build(camera);
             
             GL.UseProgram(_shaderProgramHandle);

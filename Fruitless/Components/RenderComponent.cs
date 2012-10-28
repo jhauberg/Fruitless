@@ -2,9 +2,10 @@
 using System.Runtime.InteropServices;
 using Fruitless.Utility;
 using System.Collections.Generic;
+using ComponentKit.Model;
 
 namespace Fruitless.Components {
-    public abstract class RenderComponent : GameComponent, IRenderable, IComparable<RenderComponent> {
+    public abstract class RenderComponent : DependencyComponent, IRenderable, IComparable<RenderComponent> {
         // RenderComponents are ordered by packing DrawableSettings into a long and then using that value to sort with.
         // based on this wonderful article! http://realtimecollisiondetection.net/blog/?p=86
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
