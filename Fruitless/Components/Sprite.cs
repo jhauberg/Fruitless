@@ -29,18 +29,6 @@ namespace Fruitless.Components {
             Layer = 0;
         }
 
-        protected override void OnAdded(ComponentStateEventArgs registrationArgs) {
-            base.OnAdded(registrationArgs);
-
-            System.Diagnostics.Debug.WriteLine("added component: " + ToString());
-        }
-
-        protected override void OnRemoved(ComponentStateEventArgs registrationArgs) {
-            base.OnRemoved(registrationArgs);
-
-            System.Diagnostics.Debug.WriteLine("removed component: " + ToString());
-        }
-
         protected void OnTextureChanged(TextureChangedEventArgs eventArgs) {
             if (TextureChanged != null) {
                 TextureChanged(this, eventArgs);
