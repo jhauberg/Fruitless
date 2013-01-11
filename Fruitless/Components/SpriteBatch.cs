@@ -13,6 +13,9 @@ namespace Fruitless.Components {
     /// Provides an efficient way of rendering many sprites with as few draw calls as possible.
     /// </summary>
     public class SpriteBatch : RenderComponent {
+        const float TextureFlagTintOnly = 0;
+        const float TextureFlagTextured = 1;
+
         static readonly string VertexShaderSource =
             @"
 			#version 110
@@ -20,16 +23,18 @@ namespace Fruitless.Components {
 			uniform mat4 u_mvp;
             
 			attribute vec3 a_position;
-			attribute vec2 a_textureCoord;
+			attribute vec3 a_textureCoord;
             attribute vec4 a_tintColor;
             
+            varying float v_textureFlag;
 			varying vec2 v_textureCoord;
             varying vec4 v_tintColor;
 
 			void main() {
 				gl_Position = u_mvp * vec4(a_position, 1);
                 
-				v_textureCoord = a_textureCoord;
+				v_textureCoord = a_textureCoord.st;
+                v_textureFlag = a_textureCoord.z;
                 v_tintColor = a_tintColor;
 			}
 			";
@@ -38,13 +43,14 @@ namespace Fruitless.Components {
             @"	
 			#version 110
             
+            varying float v_textureFlag;
 			varying vec2 v_textureCoord;
 	    	varying vec4 v_tintColor;
 
 			uniform sampler2D s_texture;
             
 			void main() {
-                gl_FragColor = texture2D(s_texture, v_textureCoord) * v_tintColor;
+                gl_FragColor = texture2D(s_texture, v_textureCoord) * v_tintColor + (1.0 - v_textureFlag) * v_tintColor;
 			}
 			";
 
@@ -166,7 +172,7 @@ namespace Fruitless.Components {
 
             GL.AttachShader(_shaderProgramHandle, _vertexShaderHandle);
             GL.AttachShader(_shaderProgramHandle, _fragmentShaderHandle);
-
+ 
             GL.LinkProgram(_shaderProgramHandle);
 
             a_positionHandle = GL.GetAttribLocation(_shaderProgramHandle, "a_position");
@@ -212,13 +218,14 @@ namespace Fruitless.Components {
                 sprite.TextureSourceRectangle.Width * 2,
                 sprite.TextureSourceRectangle.Height * 2);
 
-            Vector2 tl = Vector2.Zero;
-            Vector2 br = Vector2.Zero;
+            Vector3 tl = Vector3.Zero;
+            Vector3 br = Vector3.Zero;
 
-            Vector2 bl = Vector2.Zero;
-            Vector2 tr = Vector2.Zero;
+            Vector3 bl = Vector3.Zero;
+            Vector3 tr = Vector3.Zero;
 
-            if (sprite.Texture != null) {
+            if (sprite.Texture != null)
+            {
                 float uvScaleX = 1;
                 float uvScaleY = 1;
 
@@ -235,7 +242,8 @@ namespace Fruitless.Components {
                             (int)TextureWrapMode.Repeat :
                             (int)TextureWrapMode.ClampToEdge);
 
-                    if (sprite.Repeats) {
+                    if (sprite.Repeats)
+                    {
                         uvScaleX = (float)sprite.Size.Width / (float)sprite.TextureSourceRectangle.Size.Width;
                         uvScaleY = (float)sprite.Size.Height / (float)sprite.TextureSourceRectangle.Size.Height;
                     }
@@ -245,15 +253,22 @@ namespace Fruitless.Components {
                 int w = 2 * sprite.Texture.Width;
                 int h = 2 * sprite.Texture.Height;
 
-                tl = new Vector2(
+                tl = new Vector3(
                     ((2 * sourceFrame.X + 1) / w) * uvScaleX,
-                    ((2 * sourceFrame.Y + 1) / h) * uvScaleY);
-                br = new Vector2(
+                    ((2 * sourceFrame.Y + 1) / h) * uvScaleY,
+                    TextureFlagTextured);
+                br = new Vector3(
                     ((2 * sourceFrame.X + 1 + sourceFrame.Width - 2) / w) * uvScaleX,
-                    ((2 * sourceFrame.Y + 1 + sourceFrame.Height - 2) / h) * uvScaleY);
+                    ((2 * sourceFrame.Y + 1 + sourceFrame.Height - 2) / h) * uvScaleY,
+                    TextureFlagTextured);
 
-                bl = new Vector2(tl.X, br.Y);
-                tr = new Vector2(br.X, tl.Y);
+                bl = new Vector3(tl.X, br.Y, TextureFlagTextured);
+                tr = new Vector3(br.X, tl.Y, TextureFlagTextured);
+            } else {
+                tl.Z = TextureFlagTintOnly;
+                br.Z = TextureFlagTintOnly;
+                bl.Z = TextureFlagTintOnly;
+                tr.Z = TextureFlagTintOnly;
             }
 
             int offset = _sprites.IndexOf(sprite) * 2 * 3;
@@ -347,7 +362,7 @@ namespace Fruitless.Components {
                 {
                     GL.VertexAttribPointer(a_positionHandle, 3, VertexAttribPointerType.Float, false, VertexPositionColorTexture.SizeInBytes, 0);
                     GL.VertexAttribPointer(a_tintHandle, 4, VertexAttribPointerType.Float, true, VertexPositionColorTexture.SizeInBytes, 1 * Vector3.SizeInBytes);
-                    GL.VertexAttribPointer(a_textureCoordHandle, 2, VertexAttribPointerType.Float, true, VertexPositionColorTexture.SizeInBytes, (1 * Vector3.SizeInBytes) + (1 * Vector4.SizeInBytes));
+                    GL.VertexAttribPointer(a_textureCoordHandle, 3, VertexAttribPointerType.Float, true, VertexPositionColorTexture.SizeInBytes, (1 * Vector3.SizeInBytes) + (1 * Vector4.SizeInBytes));
 
                     GL.DrawArrays(BeginMode.Triangles, 
                         fromIndex * 2 * 3, 

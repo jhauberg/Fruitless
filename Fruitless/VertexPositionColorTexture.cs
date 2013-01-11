@@ -21,7 +21,7 @@ namespace Fruitless {
         /// <summary>
         ///     The texture coordinates.
         /// </summary>
-        public Vector2 TextureCoordinate;
+        public Vector3 TextureCoordinate;
 
         /// <summary>
         /// Constructor
@@ -29,7 +29,7 @@ namespace Fruitless {
         /// <param name="position">Position</param>
         /// <param name="color">Color</param>
         /// <param name="textureCoordinate">Texture coordinate</param>
-        public VertexPositionColorTexture(Vector3 position, Vector4 color, Vector2 textureCoordinate) {
+        public VertexPositionColorTexture(Vector3 position, Vector4 color, Vector3 textureCoordinate) {
             this.Position = position;
             this.Color = color;
             this.TextureCoordinate = textureCoordinate;
@@ -43,7 +43,7 @@ namespace Fruitless {
                 return
                     Vector3.SizeInBytes +
                     Vector4.SizeInBytes +
-                    Vector2.SizeInBytes;
+                    Vector3.SizeInBytes;
             }
         }
 
