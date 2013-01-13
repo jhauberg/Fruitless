@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using ComponentKit;
+﻿using ComponentKit;
+using System.Collections.Generic;
 
 namespace Fruitless.Systems {
     public class Transformer : ITransformable {

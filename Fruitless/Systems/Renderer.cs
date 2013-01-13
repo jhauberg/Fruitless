@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
-using ComponentKit;
+﻿using ComponentKit;
 using Fruitless.Components;
-using System;
+using System.Collections.Generic;
 
 namespace Fruitless.Systems {
     public class Renderer : IRenderable {

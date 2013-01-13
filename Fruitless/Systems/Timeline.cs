@@ -1,6 +1,6 @@
-﻿using System;
+﻿using ComponentKit;
+using System;
 using System.Collections.Generic;
-using ComponentKit;
 
 namespace Fruitless.Systems {
     public class Timeline : ITimeline {
