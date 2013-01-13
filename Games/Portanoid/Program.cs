@@ -10,6 +10,12 @@ using System;
 using System.Drawing;
 
 namespace Portanoid {    
+    // todo: when ball hits a brick enough times it becomes loose (and gains HasVelocity!).
+
+    // One hit from the ball should quickly offset the brick a bit in the direction that the ball came from. On the second hit it should become loose
+    // and can then be absorbed by portals... bricks can not be destroyed by the ball, only set loose. Player must use portals to get rid of the 
+    // bricks entirely (out of screen or reach a certain area, i dunno yet!)
+
     internal class Program : GameWindow {
         DefaultGameContext _context;
 
@@ -29,7 +35,7 @@ namespace Portanoid {
             CursorVisible = true;
 
             VSync = VSyncMode.On;
-
+            
             TargetRenderFrequency = 60;
             TargetUpdateFrequency = 60;
         }
@@ -42,7 +48,7 @@ namespace Portanoid {
 
             _context.Registry.Entered += OnEntityEntered;
             _context.Registry.Removed += OnEntityRemoved;
-
+                        
             Sprite backgroundSprite = new Sprite() {
                 Layer = Entities.Layers.Back,
                 Texture = Texture.FromFile("Content/Graphics/tile-red.png"),
@@ -92,9 +98,9 @@ namespace Portanoid {
                 Destination = portalOutSprite.Transform 
             });
 
-            Entity.Create(Entities.PortalGun, new SetPortals() {
-                InPortalTransform = portalInSprite.Transform,
-                OutPortalTransform = portalOutSprite.Transform
+            Entity.Create(Entities.PortalGun, new PortalsPlacer() {
+                In = portalInSprite.Transform,
+                Out = portalOutSprite.Transform
             });
 
             Entity.Create("sprites", spriteBatch);
@@ -109,7 +115,7 @@ namespace Portanoid {
             portalOutSprite.Transform.Position = new Vector2(100, 0);
             
             // note that the Pulsate component does exactly the same thing, but this is less lines of code!
-            StartPulsating(portalInSprite.Transform, TimeSpan.FromSeconds(0.5), 1.0f, 0.5f);
+            StartPulsating(portalInSprite.Transform, TimeSpan.FromSeconds(0.5), 1.0f, 0.75f);
             StartPulsating(portalOutSprite.Transform, TimeSpan.FromSeconds(1.0), 0.2f, 1.0f);
         }
 

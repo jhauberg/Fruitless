@@ -48,7 +48,7 @@
     <Compile Include="Components\HasVelocity.cs" />
     <Compile Include="Components\Portal.cs" />
     <Compile Include="Components\Pulsate.cs" />
-    <Compile Include="Components\SetPortals.cs" />
+    <Compile Include="Components\PortalsPlacer.cs" />
     <Compile Include="Entities.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
