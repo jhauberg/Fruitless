@@ -22,13 +22,13 @@ namespace Labs.Components.Editor {
 
         protected override void OnAdded(ComponentStateEventArgs registrationArgs) {
             base.OnAdded(registrationArgs);
-
+            /*
             Layer =
                 _sprite.Layer - 1;
-
-            Bounds = new Size(
-                _sprite.Bounds.Width + Frame.Width,
-                _sprite.Bounds.Height + Frame.Height);
+            */
+            Size = new Size(
+                _sprite.Size.Width + TextureSourceRectangle.Width,
+                _sprite.Size.Height + TextureSourceRectangle.Height);
         }
     }
 }

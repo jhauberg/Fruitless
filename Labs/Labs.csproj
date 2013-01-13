@@ -51,7 +51,6 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -65,7 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ComponentKit\ComponentKit.csproj">
-      <Project>{1F5DD5C6-6B92-4F0D-8EC2-1941867082D6}</Project>
+      <Project>{1f5dd5c6-6b92-4f0d-8ec2-1941867082d6}</Project>
       <Name>ComponentKit</Name>
     </ProjectReference>
     <ProjectReference Include="..\Fruitless\Fruitless.csproj">
@@ -76,6 +75,9 @@
   <ItemGroup>
     <Content Include="..\fruitless-logo.png">
       <Link>fruitless-logo.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ass_font_tran.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="frame.png">

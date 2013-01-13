@@ -9,7 +9,7 @@ namespace Labs.Components {
         Transformable2D _transform = null;
 
         public Spin() {
-            Speed = 0.005f;
+            Speed = 5f;
         }
 
         public float Speed {
@@ -18,7 +18,7 @@ namespace Labs.Components {
         }
 
         public override void Advance(TimeSpan delta) {
-            _transform.Rotation += Speed * (float)delta.TotalMilliseconds;
+            _transform.Rotation += Speed * (float)delta.TotalSeconds;
         }
     }
 }

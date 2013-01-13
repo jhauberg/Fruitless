@@ -44,6 +44,7 @@ namespace Labs {
                 component => component is Sprite,
                 (sender, args) => {
                     foreach (Sprite sprite in args.AttachedComponents.ToList()) {
+                        // instead attach to name~editor entity, it makes more sense... but remember to set transform parent to the original entity!
                         /*
                         SpriteDebug debug = new SpriteDebug();
                         {
