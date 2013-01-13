@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="30" height="22" tilewidth="32" tileheight="32">
+ <tileset firstgid="1" name="element_grey_square_glossy" tilewidth="32" tileheight="32">
+  <image source="Graphics/element_grey_square_glossy.png" width="32" height="32"/>
+ </tileset>
+ <tileset firstgid="2" name="element_green_square_glossy" tilewidth="32" tileheight="32">
+  <image source="Graphics/element_green_square_glossy.png" width="32" height="32"/>
+ </tileset>
+ <layer name="Tile Layer 1" width="30" height="22">
+  <data encoding="base64" compression="zlib">
+   eJxjYBg4wEhnjGwvvQA2e5mgmBhArDp0c3HZS4o5pNqNy15CepBpJhzihAAhe5mwsIm1F587KElX5ITzqL3k5V9y7KSGveSCUXtH7R21d/jYOxDtnIEAAAl8AKc=
+  </data>
+ </layer>
+</map>
