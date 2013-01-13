@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Camera.cs" />
+    <Compile Include="Components\TaskManager.cs" />
     <Compile Include="DefaultGameContext.cs" />
     <Compile Include="Collections\BucketCollection.cs" />
     <Compile Include="Collections\IBucketCollection.cs" />
@@ -70,6 +71,7 @@
     <Compile Include="RenderStates.cs" />
     <Compile Include="Components\Sprite.cs" />
     <Compile Include="Components\SpriteBatch.cs" />
+    <Compile Include="TaskQueue.cs" />
     <Compile Include="Texture.cs" />
     <Compile Include="TextureChangedEventArgs.cs" />
     <Compile Include="Systems\Timeline.cs" />
