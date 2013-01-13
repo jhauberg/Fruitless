@@ -9,10 +9,16 @@ using System.Linq;
 using System.Text;
 
 namespace Portanoid.Components {
+    /// <summary>
+    /// 
+    /// </summary>
     internal class Portal : TimelineComponent {
         [RequireComponent]
         Transformable2D _transform = null;
 
+        /// <summary>
+        /// The destination that teleported objects appears at.
+        /// </summary>
         [ComponentOutlet]
         public Transformable2D Destination { get; set; }
 
@@ -46,10 +52,13 @@ namespace Portanoid.Components {
 
         public Portal() {
             Strength = 1;
-            InfluenceRadius = 105;
+            InfluenceRadius = 100;
             TerminalRadius = InfluenceRadius * 0.1f;
         }
 
+        /// <summary>
+        /// Pull an entity toward this portal.
+        /// </summary>
         void Pull(IEntityRecord entity) {
             Transformable2D transform = entity.GetComponent<Transformable2D>();
             HasVelocity velocity = entity.GetComponent<HasVelocity>();
@@ -63,20 +72,14 @@ namespace Portanoid.Components {
             velocity.Velocity += movement;
         }
 
-        void Teleport(IEntityRecord entity) {
-            if (_entitiesBeingTeleported.Contains(entity)) {
-                return;
-            }
-
-            _entitiesBeingTeleported.Add(entity);
-
+        /// <summary>
+        /// Consume an entity and then do something.
+        /// </summary>
+        void Consume(IEntityRecord entity, Vector2 original, Vector2 target, Action then) {
             Transformable2D transform = entity.GetComponent<Transformable2D>();
-            
+
             TimeSpan duration = TimeSpan.FromSeconds(0.2);
-
-            Vector2 original = transform.Scale;
-            Vector2 target = Vector2.Zero;
-
+            
             TaskManager.Main
                 .WaitUntil(
                     elapsed => {
@@ -87,27 +90,60 @@ namespace Portanoid.Components {
 
                         return t >= 1;
                     })
+                .Then(then);
+        }
+
+        /// <summary>
+        /// Make entity appear at destination after being consumed by portal.
+        /// </summary>
+        void Eject(IEntityRecord entity, Vector2 original, Vector2 target) {
+            if (!_entitiesBeingTeleported.Contains(entity)) {
+                return;
+            }
+
+            Transformable2D transform = entity.GetComponent<Transformable2D>();
+
+            TimeSpan duration = TimeSpan.FromSeconds(0.2);
+
+            transform.Position = Destination.Position;
+
+            TaskManager.Main
+                .WaitUntil(
+                    elapsed => {
+                        var t = elapsed / duration.TotalSeconds;
+                        var step = Easing.EaseOut(t, EasingType.Cubic);
+
+                        transform.Scale = Vector2.Lerp(original, target, step);
+
+                        return t >= 1;
+                    })
                 .Then(
                     () => {
-                        transform.Position = Destination.Position;
+                        transform.Scale = target;
 
-                        TaskManager.Main
-                            .WaitUntil(
-                                elapsed => {
-                                    var t = elapsed / duration.TotalSeconds;
-                                    var step = Easing.EaseOut(t, EasingType.Cubic);
-
-                                    transform.Scale = Vector2.Lerp(target, original, step);
-
-                                    return t >= 1;
-                                })
-                            .Then(
-                                () => {
-                                    transform.Scale = original;
-
-                                    _entitiesBeingTeleported.Remove(entity);
-                                });
+                        _entitiesBeingTeleported.Remove(entity);
                     });
+        }
+
+        /// <summary>
+        /// Teleport entity to portal destination.
+        /// </summary>
+        void Teleport(IEntityRecord entity) {
+            if (_entitiesBeingTeleported.Contains(entity)) {
+                return;
+            }
+
+            _entitiesBeingTeleported.Add(entity);
+
+            Transformable2D transform = entity.GetComponent<Transformable2D>();
+
+            Vector2 originalScale = new Vector2(transform.Scale.X);
+            Vector2 targetScale = Vector2.Zero;
+
+            Consume(entity, originalScale, targetScale,
+                () => { 
+                    Eject(entity, targetScale, originalScale); 
+                });
         }
 
         public override void Advance(TimeSpan delta) {
