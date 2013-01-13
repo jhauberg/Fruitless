@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using ComponentKit;
+﻿using ComponentKit;
 using ComponentKit.Model;
 using Fruitless.Collections;
 using Fruitless.Components;
 using Fruitless.Systems;
 using OpenTK.Graphics;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
 using GL = OpenTK.Graphics.OpenGL.GL;
 
 namespace Fruitless {
@@ -16,8 +16,10 @@ namespace Fruitless {
         Transformer _transformer = new Transformer();
 
         OrthographicCamera _camera;
-        
-        bool ForTransformables(IComponent component) {
+
+        Size _windowBoundsInPixels = Size.Empty;
+
+        static bool ForTransformables(IComponent component) {
             return component is ITransformable;
         }
 
@@ -61,15 +63,15 @@ namespace Fruitless {
                     _timeline.Removed(args.DettachedComponents);
                 });
 
-            _camera.Background = new Color4(255, 0, 0, 255);//new Color4(48, 53, 70, 255);
+            _camera.Background = new Color4(255, 0, 0, 255);
         }
 
         void OnEntityEntered(object sender, EntityEventArgs e) {
-            Console.WriteLine("entered: " + e.Record.Name);
+            Console.WriteLine("[+] " + e.Record);
         }
 
         void OnEntityRemoved(object sender, EntityEventArgs e) {
-            Console.WriteLine("removed: " + e.Record.Name);
+            Console.WriteLine("[-] " + e.Record);
 
             // remove any tags associated with only this entity
             foreach (KeyValuePair<string, ICollection<IEntityRecord>> pair in Annotations) {
@@ -77,6 +79,10 @@ namespace Fruitless {
             }
         }
 
+        public void Annotate(IEntityRecord entity, string annotation) {
+            Annotations.Add(annotation, entity);
+        }
+        
         public void Refresh(double timePassedSinceLastRefresh) {
             _transformer.ApplyTransformation();
             _timeline.Advance(TimeSpan.FromSeconds(timePassedSinceLastRefresh));
@@ -87,8 +93,6 @@ namespace Fruitless {
 
             GL.Flush();
         }
-
-        Size _windowBoundsInPixels = Size.Empty;
 
         public Size Bounds {
             get {
@@ -117,12 +121,16 @@ namespace Fruitless {
         }
 
         public void Synchronize() {
-            Registry.Synchronize();
+            if (Registry != null) {
+                Registry.Synchronize();
+            }
         }
 
         public bool IsOutOfSync {
             get {
-                return Registry.IsOutOfSync;
+                return 
+                    Registry == null || 
+                    Registry.IsOutOfSync;
             }
         }
     }
