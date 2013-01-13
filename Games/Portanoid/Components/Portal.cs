@@ -9,8 +9,6 @@ using System.Linq;
 using System.Text;
 
 namespace Portanoid.Components {
-    // sucks in entities that are Transformable and HasVelocity
-    // can have a target transform which is where sucked in objects will appear (i.e. the out portal)
     internal class Portal : TimelineComponent {
         [RequireComponent]
         Transformable2D _transform = null;
