@@ -56,6 +56,8 @@
     <Compile Include="Collections\IBucketCollection.cs" />
     <Compile Include="ComponentOutletAttribute.cs" />
     <Compile Include="Components\GameComponent.cs" />
+    <Compile Include="Easing.cs" />
+    <Compile Include="EasingType.cs" />
     <Compile Include="IAdvanceable.cs" />
     <Compile Include="IAnimatable.cs" />
     <Compile Include="ICamera.cs" />
@@ -64,6 +66,7 @@
     <Compile Include="ITimeline.cs" />
     <Compile Include="ITransformable.cs" />
     <Compile Include="LayerChangedEventArgs.cs" />
+    <Compile Include="MathHelper.cs" />
     <Compile Include="OrthographicCamera.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Components\RenderComponent.cs" />

@@ -7,7 +7,7 @@ namespace Fruitless {
                               acceleration < 0 ? EaseOut(linearStep, type) :
                               (float)linearStep;
 
-            return MathHelper.Lerp(linearStep, easedStep, Math.Abs(acceleration));
+            return MathHelper.Lerp((float)linearStep, (float)easedStep, (float)Math.Abs(acceleration));
         }
 
         public static float EaseIn(double linearStep, EasingType type) {
