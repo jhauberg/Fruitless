@@ -43,7 +43,7 @@ namespace Fruitless.Components {
         /// <summary>
         /// The position in pixels relative to its parent.
         /// </summary>
-        public Vector2 RelativePosition {
+        public Vector2 Position {
             get {
                 return _position;
             }
@@ -59,7 +59,7 @@ namespace Fruitless.Components {
         /// <summary>
         /// The absolute position in pixels.
         /// </summary>
-        public Vector2 Position {
+        public Vector2 AbsolutePosition {
             get {
                 return new Vector2(World.M41, World.M42);
             }
@@ -70,7 +70,7 @@ namespace Fruitless.Components {
                 return
                     Matrix4.Scale(Scale.X, Scale.Y, 1) *
                     Matrix4.CreateRotationZ(_rotationInRadians) *
-                    Matrix4.CreateTranslation(RelativePosition.X, RelativePosition.Y, 0);
+                    Matrix4.CreateTranslation(Position.X, Position.Y, 0);
             }
         }
     }
