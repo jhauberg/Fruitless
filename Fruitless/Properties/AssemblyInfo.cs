@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Jacob Hauberg Hansen")]
 [assembly: AssemblyProduct("Fruitless Games Library")]
-[assembly: AssemblyCopyright("Copyright 2012 Jacob Hauberg Hansen")]
+[assembly: AssemblyCopyright("Copyright 2013 Jacob Hauberg Hansen")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -19,7 +19,6 @@ using System.Runtime.InteropServices;
 // to COM components.  If you need to access a type in this assembly from 
 // COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible(false)]
-[assembly: CLSCompliant(true)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("896923a2-7226-4bf9-8d12-e3c967e6f1f7")]
