@@ -1,8 +1,31 @@
 ﻿using OpenTK;
 
 namespace Fruitless.Components {
-    public class Transformable2D : TransformationComponent { 
+    public class Transformable2D : TransformationComponent {
+        Vector2 _position = Vector2.Zero;
+        Vector2 _scale = Vector2.One;
+
         float _rotationInRadians = 0;
+
+        public override Matrix4 Local {
+            get {
+                return
+                    Matrix4.Scale(Scale.X, Scale.Y, 1) *
+                    Matrix4.CreateRotationZ(_rotationInRadians) *
+                    Matrix4.CreateTranslation(Position.X, Position.Y, 0);
+            }
+        }
+
+        /// <summary>
+        /// Returns the distance between this and another `Transformable2D`.
+        /// </summary>
+        public float DistanceTo(Transformable2D other) {
+            if (other == null) {
+                return float.NaN;
+            }
+
+            return (Position - other.Position).Length;
+        }
 
         /// <summary>
         /// The angle of rotation in radians.
@@ -19,9 +42,7 @@ namespace Fruitless.Components {
                 }
             }
         }
-
-        Vector2 _scale = Vector2.One;
-
+        
         /// <summary>
         /// Defaults to Vector2.One (1, 1).
         /// </summary>
@@ -37,8 +58,6 @@ namespace Fruitless.Components {
                 }
             }
         }
-
-        Vector2 _position = Vector2.Zero;
 
         /// <summary>
         /// The position in pixels relative to its parent.
@@ -62,15 +81,6 @@ namespace Fruitless.Components {
         public Vector2 AbsolutePosition {
             get {
                 return new Vector2(World.M41, World.M42);
-            }
-        }
-        
-        public override Matrix4 Local {
-            get {
-                return
-                    Matrix4.Scale(Scale.X, Scale.Y, 1) *
-                    Matrix4.CreateRotationZ(_rotationInRadians) *
-                    Matrix4.CreateTranslation(Position.X, Position.Y, 0);
             }
         }
     }
