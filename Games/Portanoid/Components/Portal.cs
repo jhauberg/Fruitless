@@ -10,7 +10,7 @@ using System.Text;
 
 namespace Portanoid.Components {
     /// <summary>
-    /// 
+    /// Consumes and teleports nearby entities that are `Transformable2D` and `HasVelocity`.
     /// </summary>
     internal class Portal : TimelineComponent {
         [RequireComponent]

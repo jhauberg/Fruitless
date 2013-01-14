@@ -7,6 +7,9 @@ using Fruitless.Utility;
 using System.Runtime.InteropServices;
 
 namespace Fruitless.Components {
+    /// <summary>
+    /// Represents an image on the screen.
+    /// </summary>
     public class Sprite : DependencyComponent, IComparable<Sprite> {
         public static readonly Vector2 AnchorFromCenter =
             new Vector2(0, 0);
@@ -22,6 +25,18 @@ namespace Fruitless.Components {
 
         [RequireComponent]
         Transformable2D _transform = null;
+
+        Texture _texture;
+        Color4 _tintColor;
+
+        bool _repeats;
+        
+        Vector2 _anchor;
+
+        Size _size = Size.Empty;
+        Rectangle _sourceRectangle = Rectangle.Empty;
+
+        int _layer;
 
         public Sprite() {
             Anchor = AnchorDefault;
@@ -47,8 +62,9 @@ namespace Fruitless.Components {
             }
         }
 
-        bool _repeats;
-
+        /// <summary>
+        /// Determines whether the texture should be repeated across the size of the sprite.
+        /// </summary>
         public bool Repeats {
             get {
                 return _repeats;
@@ -61,9 +77,10 @@ namespace Fruitless.Components {
                 }
             }
         }
-
-        Texture _texture;
-
+        
+        /// <summary>
+        /// Gets or sets the texture that is rendered for this sprite.
+        /// </summary>
         public Texture Texture {
             get {
                 return _texture;
@@ -99,12 +116,10 @@ namespace Fruitless.Components {
             }
         }
 
-        Vector2 _anchor;
-
         /// <summary>
         /// The relative point at which the sprite has its center.
         /// 
-        /// Defaults to AnchorFromCenter (0, 0).
+        /// Defaults to `AnchorFromCenter` (0, 0).
         /// </summary>
         public Vector2 Anchor {
             get {
@@ -118,9 +133,10 @@ namespace Fruitless.Components {
                 }
             }
         }
-
-        Color4 _tintColor;
-
+        
+        /// <summary>
+        /// The color that is added to the sprite.
+        /// </summary>
         public Color4 TintColor {
             get {
                 return _tintColor;
@@ -133,8 +149,6 @@ namespace Fruitless.Components {
                 }
             }
         }
-
-        Rectangle _sourceRectangle = Rectangle.Empty;
 
         /// <summary>
         /// A rectangle that specifies to only use a part of the texture.
@@ -152,8 +166,6 @@ namespace Fruitless.Components {
             }
         }
 
-        Size _size = Size.Empty;
-
         /// <summary>
         /// The size of the sprite in pixels.
         /// </summary>
@@ -170,11 +182,8 @@ namespace Fruitless.Components {
             }
         }
 
-        int _layer;
-
         /// <summary>
         /// Determines the order that this sprite gets drawn in.
-        /// 
         /// Higher is later.
         /// </summary>
         public int Layer {
@@ -196,6 +205,10 @@ namespace Fruitless.Components {
             }
         }
 
+        /// <summary>
+        /// Determines whether the sprite configuration has changed. 
+        /// This lets external systems know that the sprite should be processed again.
+        /// </summary>
         public bool IsDirty {
             get;
             set;
@@ -215,7 +228,7 @@ namespace Fruitless.Components {
             return String.Format("{0}", 
                 _texture != null ?  
                     _texture.Filename : 
-                    "void");
+                    "nil");
         }
     }
 }

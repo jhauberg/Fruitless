@@ -2,11 +2,27 @@
 using OpenTK;
 
 namespace Fruitless.Components {
+    /// <summary>
+    /// Provides properties and methods for spatial transformation.
+    /// </summary>
     public class TransformationComponent : Component, ITransformable {
         public TransformationComponent() {
             World = Matrix4.Identity;
 
             RequiresWorldResolution = true;
+        }
+
+        TransformationComponent _parent;
+
+        public TransformationComponent Parent {
+            get {
+                return _parent;
+            }
+            set {
+                _parent = value;
+
+                RequiresWorldResolution = true;
+            }
         }
 
         public void ApplyTransformation() {
@@ -67,19 +83,6 @@ namespace Fruitless.Components {
         public Matrix4 World {
             get;
             private set;
-        }
-
-        TransformationComponent _parent;
-
-        public TransformationComponent Parent {
-            get {
-                return _parent;
-            }
-            set {
-                _parent = value;
-
-                RequiresWorldResolution = true;
-            }
         }
     }
 }

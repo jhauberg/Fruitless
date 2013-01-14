@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 
 namespace Fruitless.Systems {
+    /// <summary>
+    /// Applies spatial transformation on `ITransformable` components.
+    /// </summary>
     public class Transformer : ITransformable {
         IList<ITransformable> _transformables =
             new List<ITransformable>();

@@ -5,9 +5,10 @@ using System.Collections.Generic;
 using ComponentKit.Model;
 
 namespace Fruitless.Components {
+    /// <summary>
+    /// Provides rendering capability and options for pragmatic sorting.
+    /// </summary>
     public abstract class RenderComponent : DependencyComponent, IRenderable, IComparable<RenderComponent> {
-        // RenderComponents are ordered by packing DrawableSettings into a long and then using that value to sort with.
-        // based on this wonderful article! http://realtimecollisiondetection.net/blog/?p=86
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         struct DrawableSettings {
             // fields are listed least- to most important. e.g. transparency has a higher impact on order than renderstate.
@@ -18,7 +19,6 @@ namespace Fruitless.Components {
             public uint LayerDepth;
             [BitfieldLength(8)]
             public uint Layer;
-            //
             [BitfieldLength(2)]
             public uint IsTransparent;
 
@@ -52,8 +52,25 @@ namespace Fruitless.Components {
             return !left.Equals(right);
         }
 
-        // this is ugleh! but works for now.
-        // making new function pointers for each component resulted in bad sorting, so they had to be cached somehow...
+        // RenderComponents are ordered by packing DrawableSettings into a long and then using that value to sort with.
+        // based on this wonderful article! http://realtimecollisiondetection.net/blog/?p=86
+        DrawableSettings Settings {
+            get {
+                return _settings;
+            }
+            set {
+                _settings = value;
+
+                SortingKey = PrimitiveConversion
+                    .ToLong<DrawableSettings>(_settings);
+            }
+        }
+
+        long SortingKey {
+            get;
+            set;
+        }
+
         static Dictionary<RenderState, IntPtr> _cachedRenderStates =
             new Dictionary<RenderState, IntPtr>();
 
@@ -71,6 +88,9 @@ namespace Fruitless.Components {
             return sortIndex;
         }
 
+        /// <summary>
+        /// Gets or sets the delegate of renderstates that this component requires in order to render correctly.
+        /// </summary>
         public RenderState RenderState {
             get {
                 if (_settings.RenderState != 0) {
@@ -87,7 +107,7 @@ namespace Fruitless.Components {
         }
 
         /// <summary>
-        /// An index specifying order within the current layer.
+        /// Gets or sets the index that specifies the order within the current layer.
         /// Higher indices get rendered last.
         /// 0-PLENTY.
         /// </summary>
@@ -103,7 +123,7 @@ namespace Fruitless.Components {
         }
 
         /// <summary>
-        /// An index specifying which layer this component is on. 
+        /// Gets or sets the index specifying which layer this component is currently on. 
         /// Higher layers get rendered last.
         /// 0-128.
         /// </summary>
@@ -118,6 +138,9 @@ namespace Fruitless.Components {
             }
         }
 
+        /// <summary>
+        /// Determines whether the rendered content contain any transparent objects.
+        /// </summary>
         public bool IsTransparent {
             get {
                 return _settings.IsTransparent != 0;
@@ -132,25 +155,9 @@ namespace Fruitless.Components {
             }
         }
 
-        private DrawableSettings Settings {
-            get {
-                return _settings;
-            }
-            set {
-                _settings = value;
-
-                SortingKey = PrimitiveConversion
-                    .ToLong<DrawableSettings>(_settings);
-
-                //System.Diagnostics.Debug.WriteLine(String.Format("{0} = {1}", _settings.ToString(), SortingKey));
-            }
-        }
-
-        private long SortingKey {
-            get;
-            set;
-        }
-
+        /// <summary>
+        /// Determines whether to render this component.
+        /// </summary>
         public bool IsHidden {
             get;
             set;

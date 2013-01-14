@@ -1,6 +1,9 @@
 ﻿using OpenTK;
 
 namespace Fruitless.Components {
+    /// <summary>
+    /// Provides spatial transformation in a 2D-space (i.e. position, rotation and scale).
+    /// </summary>
     public class Transformable2D : TransformationComponent {
         Vector2 _position = Vector2.Zero;
         Vector2 _scale = Vector2.One;

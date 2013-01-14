@@ -3,6 +3,10 @@ using Fruitless.Components;
 using System.Collections.Generic;
 
 namespace Fruitless.Systems {
+    /// <summary>
+    /// Renders `RenderComponents` with respect to their renderstates.
+    /// Components are always sorted, and renderstates are applied/removed only when necessary.
+    /// </summary>
     public class Renderer : IRenderable {
         List<RenderComponent> _renderables =
             new List<RenderComponent>();
@@ -33,6 +37,9 @@ namespace Fruitless.Systems {
             }
         }
 
+        /// <summary>
+        /// Renders all renderable components using the specified camera.
+        /// </summary>
         public void Render(ICamera camera) {
             lock (_renderables) {
                 _renderables.Sort(delegate(RenderComponent drawable, RenderComponent otherDrawable) {
@@ -57,6 +64,9 @@ namespace Fruitless.Systems {
             }
         }
 
+        /// <summary>
+        /// Renders a renderable components and applies its required renderstate if necessary.
+        /// </summary>
         void Render(ICamera camera, RenderComponent renderable) {
             RenderState desiredState = renderable.RenderState;
 

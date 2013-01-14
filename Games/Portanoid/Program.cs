@@ -97,12 +97,12 @@ namespace Portanoid {
             Entity.Create(Entities.PortalIn, portalInSprite, new Portal() { 
                 Destination = portalOutSprite.Transform 
             });
-
+            
             Entity.Create(Entities.PortalGun, new PortalsPlacer() {
                 In = portalInSprite.Transform,
                 Out = portalOutSprite.Transform
             });
-
+            
             Entity.Create("sprites", spriteBatch);
 
             IEntityRecord brick = Entity.Create("a brick", brickSprite);
