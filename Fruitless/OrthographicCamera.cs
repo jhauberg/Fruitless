@@ -4,6 +4,11 @@ using OpenTK.Graphics.OpenGL;
 
 namespace Fruitless {
     public class OrthographicCamera : Camera {
+        public static OrthographicCamera Main {
+            get;
+            private set;
+        }
+
         Matrix4 _projection;
         Matrix4 _view;
         
@@ -11,20 +16,11 @@ namespace Fruitless {
 
         float _zoom;
 
-        public float Scale {
-            get {
-                return _zoom;
-            }
-            set {
-                if (_zoom != value) {
-                    _zoom = value;
-                    
-                    Build();
-                }
-            }
-        }
-
         public OrthographicCamera(Size boundsInPixels) {
+            if (Main == null) {
+                Main = this;
+            }
+
             Bounds = boundsInPixels;
             Scale = 1.0f;
         }
@@ -42,6 +38,16 @@ namespace Fruitless {
             GL.ClearColor(Background);
         }
 
+        public Vector2 GetWorldPositionFromScreen(int x, int y) {
+            float centerX = Bounds.Width / 2;
+            float centerY = Bounds.Height / 2;
+
+            float deltaX = x - centerX;
+            float deltaY = centerY - y;
+
+            return new Vector2(deltaX, deltaY) * Scale;
+        }
+
         public Size Bounds {
             get {
                 return _boundsInPixels;
@@ -49,6 +55,19 @@ namespace Fruitless {
             set {
                 if (_boundsInPixels != value) {
                     _boundsInPixels = value;
+
+                    Build();
+                }
+            }
+        }
+
+        public float Scale {
+            get {
+                return _zoom;
+            }
+            set {
+                if (_zoom != value) {
+                    _zoom = value;
 
                     Build();
                 }
