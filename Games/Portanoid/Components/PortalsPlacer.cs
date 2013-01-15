@@ -28,13 +28,13 @@ namespace Portanoid.Components {
 
             if (_msLast[MouseButton.Left] && _ms.IsButtonUp(MouseButton.Left)) {
                 if (In != null) {
-                    In.Position = new Vector2(_ms.X, _ms.Y);
+                    In.Position = OrthographicCamera.Main.GetWorldPositionFromScreen(Program.Cursor.X, Program.Cursor.Y);
                 }
             }
 
             if (_msLast[MouseButton.Right] && _ms.IsButtonUp(MouseButton.Right)) {
                 if (Out != null) {
-                    Out.Position = new Vector2(_ms.X, _ms.Y);
+                    Out.Position = OrthographicCamera.Main.GetWorldPositionFromScreen(Program.Cursor.X, Program.Cursor.Y);
                 }
             }
 

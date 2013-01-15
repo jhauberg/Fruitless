@@ -16,7 +16,21 @@ namespace Portanoid {
     // and can then be absorbed by portals... bricks can not be destroyed by the ball, only set loose. Player must use portals to get rid of the 
     // bricks entirely (out of screen or reach a certain area, i dunno yet!)
 
+    
+
     internal class Program : GameWindow {
+        internal static class Cursor {
+            public static int X {
+                get;
+                set;
+            }
+
+            public static int Y {
+                get;
+                set;
+            }
+        }
+
         DefaultGameContext _context;
 
         KeyboardState _ks;
@@ -31,13 +45,16 @@ namespace Portanoid {
         public Program()
             : base(800, 600, GraphicsMode.Default, "Portanoid") {
             WindowBorder = OpenTK.WindowBorder.Fixed;
-
+            
             CursorVisible = true;
 
             VSync = VSyncMode.On;
             
             TargetRenderFrequency = 60;
             TargetUpdateFrequency = 60;
+
+            Cursor.X = Mouse.X;
+            Cursor.Y = Mouse.Y;
         }
 
         protected override void OnLoad(EventArgs e) {
@@ -95,6 +112,7 @@ namespace Portanoid {
 
             Entity.Create(Entities.PortalOut, portalOutSprite/*, new Pulsate() { From = 0.2f, To = 1.0f }*/);
             Entity.Create(Entities.PortalIn, portalInSprite, new Portal() { 
+                Strength = 10,
                 Destination = portalOutSprite.Transform 
             });
             
@@ -118,7 +136,7 @@ namespace Portanoid {
             StartPulsating(portalInSprite.Transform, TimeSpan.FromSeconds(0.5), 1.0f, 0.75f);
             StartPulsating(portalOutSprite.Transform, TimeSpan.FromSeconds(1.0), 0.2f, 1.0f);
         }
-
+        
         void StartPulsating(Transformable2D transform, TimeSpan duration, float from, float to) {
             Vector2 original = new Vector2(from);
             Vector2 target = new Vector2(to);
@@ -161,6 +179,9 @@ namespace Portanoid {
 
         protected override void OnUpdateFrame(FrameEventArgs e) {
             base.OnUpdateFrame(e);
+
+            Cursor.X = Mouse.X;
+            Cursor.Y = Mouse.Y;
 
             _ks = OpenTK.Input.Keyboard.GetState();
 
