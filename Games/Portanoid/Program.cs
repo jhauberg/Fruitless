@@ -43,7 +43,7 @@ namespace Portanoid {
         double _averageUpdateTime;
 
         public Program()
-            : base(800, 600, GraphicsMode.Default, "Portanoid") {
+            : base(600, 500, GraphicsMode.Default, "Portanoid") {
             WindowBorder = OpenTK.WindowBorder.Fixed;
             
             CursorVisible = true;
@@ -112,7 +112,7 @@ namespace Portanoid {
 
             Entity.Create(Entities.PortalOut, portalOutSprite/*, new Pulsate() { From = 0.2f, To = 1.0f }*/);
             Entity.Create(Entities.PortalIn, portalInSprite, new Portal() { 
-                Strength = 10,
+                Strength = 1,
                 Destination = portalOutSprite.Transform 
             });
             
@@ -177,6 +177,13 @@ namespace Portanoid {
             return _ksLast[key] && !_ks[key];
         }
 
+        void Reset() {
+            var ball = Entity.Find(Entities.Ball);
+
+            ball.GetComponent<HasVelocity>().Reset();
+            ball.GetComponent<Transformable2D>().Position = Vector2.Zero;
+        }
+
         protected override void OnUpdateFrame(FrameEventArgs e) {
             base.OnUpdateFrame(e);
 
@@ -191,6 +198,10 @@ namespace Portanoid {
 
             if (KeyWasReleased(Key.Tilde)) {
                 System.Diagnostics.Debug.WriteLine("~");
+            }
+
+            if (KeyWasReleased(Key.Space)) {
+                Reset();
             }
 
             _context.Refresh(e.Time);

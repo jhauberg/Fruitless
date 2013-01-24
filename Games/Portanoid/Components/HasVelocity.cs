@@ -27,6 +27,10 @@ namespace Portanoid.Components {
             }
         }
 
+        public override void Reset() {
+            Velocity = Vector2.Zero;
+        }
+
         public override void Advance(TimeSpan delta) {
             _transform.Position += _velocity * (float)delta.TotalSeconds;
         }
