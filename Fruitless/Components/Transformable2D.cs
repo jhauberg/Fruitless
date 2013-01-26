@@ -13,7 +13,7 @@ namespace Fruitless.Components {
         public override Matrix4 Local {
             get {
                 return
-                    Matrix4.Scale(Scale.X, Scale.Y, 1) *
+                    Matrix4.CreateScale(Scale.X, Scale.Y, 1) *
                     Matrix4.CreateRotationZ(_rotationInRadians) *
                     Matrix4.CreateTranslation(Position.X, Position.Y, 0);
             }
