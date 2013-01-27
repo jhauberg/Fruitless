@@ -5,7 +5,7 @@ namespace Fruitless.Components {
     public class TaskManager : TimelineComponent {
         public static TaskManager Main {
             get;
-            set;
+            private set;
         }
 
         // cache of queues we can reuse to avoid garbage

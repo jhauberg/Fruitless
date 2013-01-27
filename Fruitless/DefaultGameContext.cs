@@ -16,7 +16,7 @@ namespace Fruitless {
         Transformer _transformer = new Transformer();
 
         OrthographicCamera _camera;
-
+        
         Size _windowBoundsInPixels = Size.Empty;
 
         static bool ForTransformables(IComponent component) {

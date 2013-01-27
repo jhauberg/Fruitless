@@ -99,7 +99,7 @@ namespace Squadtris {
                 "10000021111" +
                 "10000000011" +
                 "10000000001" +
-                "10000000201" +
+                "10000000021" +
                 "11000000011";
 
             gridSettings.Layer = 1;
@@ -112,8 +112,8 @@ namespace Squadtris {
                 },
                 new MappedSpriteGrid(gridSettings, map) {
                     Textures = new Texture[] { 
-                        Texture.FromFile("Content/Graphics/wall.png"),
-                        Texture.FromFile("Content/Graphics/wall-broken.png")
+                        Texture.FromFile("Content/Graphics/wall.png"),       // #1
+                        Texture.FromFile("Content/Graphics/wall-broken.png") // #2
                     }
                 }
             );
