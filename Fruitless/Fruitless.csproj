@@ -32,12 +32,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="OpenTK, Version=1.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+    <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\External\OpenTK.dll</HintPath>
     </Reference>
-    <Reference Include="OpenTK.Compatibility, Version=1.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="OpenTK.Compatibility">
       <HintPath>..\External\OpenTK.Compatibility.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -51,6 +50,9 @@
   <ItemGroup>
     <Compile Include="Camera.cs" />
     <Compile Include="Collections\PriorityQueue.cs" />
+    <Compile Include="Components\MappedSpriteGrid.cs" />
+    <Compile Include="Components\SpriteGrid.cs" />
+    <Compile Include="Components\SpriteGridSettings.cs" />
     <Compile Include="Components\TaskManager.cs" />
     <Compile Include="DefaultGameContext.cs" />
     <Compile Include="Collections\BucketCollection.cs" />
