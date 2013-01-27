@@ -108,9 +108,11 @@ namespace Fruitless.Components {
         }
 
         protected virtual Vector2 GetPositionOfCell(int column, int row) {
+            Sprite sprite = this[column, row];
+
             return new Vector2(
-                column * Texture.Width,
-                row * Texture.Height);
+                column * sprite.Texture.Width,
+                row * sprite.Texture.Height);
         }
 
         void Build() {
@@ -149,7 +151,7 @@ namespace Fruitless.Components {
 
             for (int row = 0; row < Rows; row++) {
                 for (int column = 0; column < Columns; column++) {
-                    Sprite sprite = _sprites[GetSpriteIndex(column, row)];
+                    Sprite sprite = this[column, row];
 
                     if (sprite == null ||
                         sprite.Transform == null ||

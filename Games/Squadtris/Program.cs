@@ -58,15 +58,17 @@ namespace Squadtris {
             Entity.Create(Entities.Shared.Sprites, new SpriteBatch());
         }
 
-        void CreateGameEntities() {
-            SpriteBatch sprites = Entity.Find(Entities.Shared.Sprites)
-                .GetComponent<SpriteBatch>();
+        void CreateTheDungeon(SpriteBatch spriteBatch) {
+            _dungeon = Entity.Create(Entities.Game.Dungeon, 
+                new Transformable2D() {
+                    Position = new Vector2(
+                        -(_context.Bounds.Width / 2),
+                        -(_context.Bounds.Height / 2))
+                });
 
-            _dungeon = Entity.Create(Entities.Game.Dungeon);
-
-            SpriteGridSettings gridSettings = 
+            SpriteGridSettings gridSettings =
                 new SpriteGridSettings() {
-                    SpriteBatch = sprites,
+                    SpriteBatch = spriteBatch,
                     Columns = 11,
                     Rows = 16
                 };
@@ -75,9 +77,7 @@ namespace Squadtris {
 
             Entity.Create(string.Format("{0}~floor", Entities.Game.Dungeon),
                 new Transformable2D() {
-                    Position = new Vector2(
-                        -(_context.Bounds.Width / 2),
-                        -(_context.Bounds.Height / 2))
+                    Parent = _dungeon.GetComponent<Transformable2D>()
                 },
                 new SpriteGrid(gridSettings) {
                     Texture = Texture.FromFile("Content/Graphics/floor.png")
@@ -93,29 +93,37 @@ namespace Squadtris {
                 "10001000001" +
                 "10111110001" +
                 "10001100001" +
-                "10001000001" +
+                "10002000001" +
                 "10000000001" +
                 "10000000011" +
-                "10000011111" +
+                "10000021111" +
                 "10000000011" +
                 "10000000001" +
-                "10000000001" +
+                "10000000201" +
                 "11000000011";
 
             gridSettings.Layer = 1;
-            
+
             // note how the grid components are not really required after the tiles have been laid out; entities could instead be marked with e.g. "wall",
             // although they are useful to keep around if needing to Layout() after the initial pass (maybe tiles get displaced as part of the game - because why not).
             Entity.Create(string.Format("{0}~walls", Entities.Game.Dungeon),
                 new Transformable2D() {
-                    Position = new Vector2(
-                        -(_context.Bounds.Width / 2),
-                        -(_context.Bounds.Height / 2))
+                    Parent = _dungeon.GetComponent<Transformable2D>()
                 },
                 new MappedSpriteGrid(gridSettings, map) {
-                    Texture = Texture.FromFile("Content/Graphics/wall.png")
+                    Textures = new Texture[] { 
+                        Texture.FromFile("Content/Graphics/wall.png"),
+                        Texture.FromFile("Content/Graphics/wall-broken.png")
+                    }
                 }
             );
+        }
+
+        void CreateGameEntities() {
+            SpriteBatch sprites = Entity.Find(Entities.Shared.Sprites)
+                .GetComponent<SpriteBatch>();
+
+            CreateTheDungeon(spriteBatch: sprites);
         }
 
         protected override void OnLoad(EventArgs e) {
@@ -129,22 +137,6 @@ namespace Squadtris {
 
             CreateSharedEntities();
             CreateGameEntities();
-            /*
-            Console.WriteLine();
-
-            foreach (IEntityRecord entity in EntityRegistry.Current) {
-                PrintEntity(entity, 0);
-            }
-            */
-        }
-
-        void PrintEntity(IEntityRecord entity, int level) {
-            for (int i = 0; i < level; i++) {
-                Console.Write(" ");
-            }
-
-            Console.Write(entity.ToString());
-            Console.WriteLine();
         }
 
         void OnEntityEntered(object sender, EntityEventArgs e) {
