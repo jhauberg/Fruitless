@@ -7,6 +7,7 @@ using OpenTK.Graphics;
 using OpenTK.Input;
 using System;
 using System.Drawing;
+using System.Reflection;
 
 namespace Squadtris {
     internal class Program : GameWindow {
@@ -38,6 +39,10 @@ namespace Squadtris {
 
         public Program()
             : base(320, 480, GraphicsMode.Default, "Squadtris") {
+            Console.WriteLine("-------------------------------------------------------------------------------");
+            Console.WriteLine(" E | NAME ");
+            Console.WriteLine("------------------------------");
+
             WindowBorder = OpenTK.WindowBorder.Fixed;
 
             CursorVisible = true;
@@ -104,8 +109,6 @@ namespace Squadtris {
 
             gridSettings.Layer = 1;
 
-            // note how the grid components are not really required after the tiles have been laid out; entities could instead be marked with e.g. "wall",
-            // although they are useful to keep around if needing to Layout() after the initial pass (maybe tiles get displaced as part of the game - because why not).
             Entity.Create(string.Format("{0}~walls", Entities.Game.Dungeon),
                 new Transformable2D() {
                     Parent = _dungeon.GetComponent<Transformable2D>()
@@ -115,6 +118,60 @@ namespace Squadtris {
                         Texture.FromFile("Content/Graphics/wall.png"),       // #1
                         Texture.FromFile("Content/Graphics/wall-broken.png") // #2
                     }
+                }
+            );
+
+            map =
+                "00000000000" +
+                "00000000000" +
+                "00000000000" +
+                "00000000000" +
+                "00000000000" +
+                "00000000000" +
+                "00000000000" +
+                "00000000000" +
+                "00000000000" +
+                "00000000000" +
+                "00000000000" +
+                "00000000000" +
+                "00000000000" +
+                "00001000000" +
+                "00011100000" +
+                "00000000000";
+
+            Entity.Create(string.Format("{0}~squad", Entities.Game.Dungeon),
+                new Transformable2D() {
+                    Parent = _dungeon.GetComponent<Transformable2D>()
+                },
+                new MappedSpriteGrid(gridSettings, map) {
+                    Texture = Texture.FromFile("Content/Graphics/unit.png")
+                }
+            );
+
+            map =
+                "00000000000" +
+                "00001111000" +
+                "00000100000" +
+                "00000000000" +
+                "00010000000" +
+                "00000010000" +
+                "01000000000" +
+                "01100010000" +
+                "00000100000" +
+                "00011100000" +
+                "00000000000" +
+                "00000000000" +
+                "00000001100" +
+                "00000000000" +
+                "00000000000" +
+                "00000000000";
+
+            Entity.Create(string.Format("{0}~enemies", Entities.Game.Dungeon),
+                new Transformable2D() {
+                    Parent = _dungeon.GetComponent<Transformable2D>()
+                },
+                new MappedSpriteGrid(gridSettings, map) {
+                    Texture = Texture.FromFile("Content/Graphics/enemy.png")
                 }
             );
         }

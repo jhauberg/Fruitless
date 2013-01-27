@@ -1,7 +1,7 @@
 ﻿namespace Squadtris {
     internal sealed class Entities {
         public static class Shared {
-            public const string World = "theworld";
+            public const string World = "~";
             public const string Tasks = "tasks";
             public const string Sprites = "sprites";
         }
