@@ -33,6 +33,9 @@ namespace Squadtris {
         double _previousUpdateTime;
         double _averageUpdateTime;
 
+        IEntityRecord _world;
+        IEntityRecord _dungeon;
+
         public Program()
             : base(320, 480, GraphicsMode.Default, "Squadtris") {
             WindowBorder = OpenTK.WindowBorder.Fixed;
@@ -48,6 +51,73 @@ namespace Squadtris {
             Cursor.Y = Mouse.Y;
         }
 
+        void CreateSharedEntities() {
+            _world = Entity.Create(Entities.Shared.World, new Transformable2D());
+            
+            Entity.Create(Entities.Shared.Tasks, new TaskManager());
+            Entity.Create(Entities.Shared.Sprites, new SpriteBatch());
+        }
+
+        void CreateGameEntities() {
+            SpriteBatch sprites = Entity.Find(Entities.Shared.Sprites)
+                .GetComponent<SpriteBatch>();
+
+            _dungeon = Entity.Create(Entities.Game.Dungeon);
+
+            SpriteGridSettings gridSettings = 
+                new SpriteGridSettings() {
+                    SpriteBatch = sprites,
+                    Columns = 11,
+                    Rows = 16
+                };
+
+            gridSettings.Layer = 0;
+
+            Entity.Create(string.Format("{0}~floor", Entities.Game.Dungeon),
+                new Transformable2D() {
+                    Position = new Vector2(
+                        -(_context.Bounds.Width / 2),
+                        -(_context.Bounds.Height / 2))
+                },
+                new SpriteGrid(gridSettings) {
+                    Texture = Texture.FromFile("Content/Graphics/floor.png")
+                }
+            );
+
+            string map =
+                "11111011111" +
+                "10000000001" +
+                "10000000001" +
+                "10000000001" +
+                "10001000001" +
+                "10001000001" +
+                "10111110001" +
+                "10001100001" +
+                "10001000001" +
+                "10000000001" +
+                "10000000011" +
+                "10000011111" +
+                "10000000011" +
+                "10000000001" +
+                "10000000001" +
+                "11000000011";
+
+            gridSettings.Layer = 1;
+            
+            // note how the grid components are not really required after the tiles have been laid out; entities could instead be marked with e.g. "wall",
+            // although they are useful to keep around if needing to Layout() after the initial pass (maybe tiles get displaced as part of the game - because why not).
+            Entity.Create(string.Format("{0}~walls", Entities.Game.Dungeon),
+                new Transformable2D() {
+                    Position = new Vector2(
+                        -(_context.Bounds.Width / 2),
+                        -(_context.Bounds.Height / 2))
+                },
+                new MappedSpriteGrid(gridSettings, map) {
+                    Texture = Texture.FromFile("Content/Graphics/wall.png")
+                }
+            );
+        }
+
         protected override void OnLoad(EventArgs e) {
             base.OnLoad(e);
 
@@ -57,13 +127,24 @@ namespace Squadtris {
             _context.Registry.Entered += OnEntityEntered;
             _context.Registry.Removed += OnEntityRemoved;
 
-            SpriteBatch spriteBatch = new SpriteBatch();
-            {
-                // add sprites
+            CreateSharedEntities();
+            CreateGameEntities();
+            /*
+            Console.WriteLine();
+
+            foreach (IEntityRecord entity in EntityRegistry.Current) {
+                PrintEntity(entity, 0);
+            }
+            */
+        }
+
+        void PrintEntity(IEntityRecord entity, int level) {
+            for (int i = 0; i < level; i++) {
+                Console.Write(" ");
             }
 
-            Entity.Create("tasks", new TaskManager());
-            Entity.Create("sprites", spriteBatch);
+            Console.Write(entity.ToString());
+            Console.WriteLine();
         }
 
         void OnEntityEntered(object sender, EntityEventArgs e) {
@@ -89,7 +170,7 @@ namespace Squadtris {
 
             Cursor.X = Mouse.X;
             Cursor.Y = Mouse.Y;
-
+            
             _ks = OpenTK.Input.Keyboard.GetState();
 
             if (KeyWasReleased(Key.Escape)) {
@@ -99,7 +180,7 @@ namespace Squadtris {
             if (KeyWasReleased(Key.Tilde)) {
                 System.Diagnostics.Debug.WriteLine("~");
             }
-
+            
             _context.Refresh(e.Time);
 
             if (_context.IsOutOfSync) {
