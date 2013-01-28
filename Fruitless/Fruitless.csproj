@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="Camera.cs" />
     <Compile Include="Collections\PriorityQueue.cs" />
+    <Compile Include="Components\InputComponent.cs" />
     <Compile Include="Components\MappedSpriteGrid.cs" />
     <Compile Include="Components\SpriteGrid.cs" />
     <Compile Include="Components\SpriteGridSettings.cs" />
@@ -78,6 +79,8 @@
     <Compile Include="Pathfinding\WeightedPath.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Components\RenderComponent.cs" />
+    <Compile Include="Systems\InputSystem.cs" />
+    <Compile Include="Systems\ISystem.cs" />
     <Compile Include="Systems\Renderer.cs" />
     <Compile Include="RenderStates.cs" />
     <Compile Include="Components\Sprite.cs" />

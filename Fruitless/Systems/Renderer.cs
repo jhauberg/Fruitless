@@ -7,7 +7,7 @@ namespace Fruitless.Systems {
     /// Renders `RenderComponents` with respect to their renderstates.
     /// Components are always sorted, and renderstates are applied/removed only when necessary.
     /// </summary>
-    public class Renderer : IRenderable {
+    public class Renderer : ISystem, IRenderable {
         List<RenderComponent> _renderables =
             new List<RenderComponent>();
 

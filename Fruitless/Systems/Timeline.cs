@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 
 namespace Fruitless.Systems {
-    public class Timeline : ITimeline {
+    public class Timeline : ISystem, ITimeline {
         IList<ITimeline> _advanceables = new List<ITimeline>();
         IList<IAnimatable> _animatables = new List<IAnimatable>();
 

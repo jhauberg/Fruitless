@@ -5,7 +5,7 @@ namespace Fruitless.Systems {
     /// <summary>
     /// Applies spatial transformation on `ITransformable` components.
     /// </summary>
-    public class Transformer : ITransformable {
+    public class Transformer : ISystem, ITransformable {
         IList<ITransformable> _transformables =
             new List<ITransformable>();
 
