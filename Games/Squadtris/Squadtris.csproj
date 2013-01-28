@@ -46,6 +46,7 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\SquadLeader.cs" />
     <Compile Include="Entities.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -87,7 +88,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Components\" />
+    <Folder Include="Systems\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

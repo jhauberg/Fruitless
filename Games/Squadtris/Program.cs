@@ -5,6 +5,7 @@ using Fruitless.Components;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Input;
+using Squadtris.Components;
 using System;
 using System.Drawing;
 using System.Reflection;
@@ -36,6 +37,7 @@ namespace Squadtris {
 
         IEntityRecord _world;
         IEntityRecord _dungeon;
+        IEntityRecord _squad;
 
         public Program()
             : base(320, 480, GraphicsMode.Default, "Squadtris") {
@@ -44,7 +46,7 @@ namespace Squadtris {
             Console.WriteLine("------------------------------");
 
             WindowBorder = OpenTK.WindowBorder.Fixed;
-
+            
             CursorVisible = true;
 
             VSync = VSyncMode.On;
@@ -80,7 +82,7 @@ namespace Squadtris {
 
             gridSettings.Layer = 0;
 
-            Entity.Create(string.Format("{0}~floor", Entities.Game.Dungeon),
+            Entity.Create(Entities.Game.DungeonFloor,
                 new Transformable2D() {
                     Parent = _dungeon.GetComponent<Transformable2D>()
                 },
@@ -109,7 +111,7 @@ namespace Squadtris {
 
             gridSettings.Layer = 1;
 
-            Entity.Create(string.Format("{0}~walls", Entities.Game.Dungeon),
+            Entity.Create(Entities.Game.DungeonWalls,
                 new Transformable2D() {
                     Parent = _dungeon.GetComponent<Transformable2D>()
                 },
@@ -139,15 +141,22 @@ namespace Squadtris {
                 "00011100000" +
                 "00000000000";
 
-            Entity.Create(string.Format("{0}~squad", Entities.Game.Dungeon),
+            _squad = Entity.Create(Entities.Game.Squad, 
                 new Transformable2D() {
                     Parent = _dungeon.GetComponent<Transformable2D>()
+                });
+
+            Entity.Create(Entities.Game.SquadUnits,
+                new Transformable2D() {
+                    Parent = _squad.GetComponent<Transformable2D>()
                 },
                 new MappedSpriteGrid(gridSettings, map) {
                     Texture = Texture.FromFile("Content/Graphics/unit.png")
                 }
             );
 
+            _squad.Add(new SquadLeader()); // added later because it depends on the units spritegrid...
+            
             map =
                 "00000000000" +
                 "00001111000" +
@@ -166,7 +175,7 @@ namespace Squadtris {
                 "00000000000" +
                 "00000000000";
 
-            Entity.Create(string.Format("{0}~enemies", Entities.Game.Dungeon),
+            Entity.Create(Entities.Game.DungeonEnemies,
                 new Transformable2D() {
                     Parent = _dungeon.GetComponent<Transformable2D>()
                 },
