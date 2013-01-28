@@ -85,7 +85,7 @@ namespace Fruitless.Components {
         void Clear() {
             if (_sprites != null) {
                 foreach (Sprite sprite in _sprites) {
-                    sprite.Remove();
+                    sprite.Record.Drop();
 
                     if (SpriteBatch != null) {
                         SpriteBatch.Remove(sprite);
