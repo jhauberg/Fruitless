@@ -35,15 +35,23 @@ namespace Squadtris.Components {
         KeyboardState _ks;
         KeyboardState _ksLast;
 
+        bool _isSprinting = false;
+
         void Move(Vector2 direction) {
             _transform.TranslateBy(direction * _sprites.Texture.Height);
 
             _lastMovementTime = DateTime.Now;
         }
 
-        void Sprint(Vector2 direction) {
-            TimeSpan snapBackwardDuration = TimeSpan.FromSeconds(0.2);
-            TimeSpan snapForwardDuration = TimeSpan.FromSeconds(0.1);
+        void Attack(Vector2 direction) {
+            if (_isSprinting) {
+                return;
+            }
+
+            _isSprinting = true;
+
+            TimeSpan snapBackwardDuration = TimeSpan.FromSeconds(0.12);
+            TimeSpan snapForwardDuration = TimeSpan.FromSeconds(0.08);
 
             Vector2 originalPosition = _transform.Position;
 
@@ -77,12 +85,13 @@ namespace Squadtris.Components {
                 .Then(
                     () => {
                         _transform.Position = originalPosition;
+
+                        _isSprinting = false;
                     });
         }
 
         bool CanMove() {
-            return DateTime.Now - _lastMovementTime > 
-                DelayBetweenMovements;
+            return !_isSprinting && DateTime.Now - _lastMovementTime > DelayBetweenMovements;
         }
 
         bool KeyWasReleased(Key key) {
@@ -97,51 +106,24 @@ namespace Squadtris.Components {
             _ks = Keyboard.GetState();
             
             if (CanMove()) {
-                TimeSpan timeSinceLastMove = DateTime.Now - _lastMovementTime;
-
-                bool canSprint = timeSinceLastMove < TimeSpan.FromSeconds(0.3);
-
-
-                if (KeyWasPressed(Key.A)) {
-                    Move(Left);
-                }
-
-                if (KeyWasPressed(Key.D)) {
-                    Move(Right);
-                }
-
-                if (KeyWasPressed(Key.W)) {
-                    /*
-                     * double-tap to sprint
-                     * 
-                    TimeSpan timeSinceLastMove = DateTime.Now - _lastMovementTime;
-
-                    if (timeSinceLastMove < TimeSpan.FromSeconds(0.15)) {
-                        Sprint(Forward);
-                    } else {
-                        Move(Forward);
-                    }
-                    */
-
-                    /*
-                     * hold space and press forward to sprint
-                     * 
-                    if (_ks[Key.Space]) {
-                        Sprint(Forward);
-                    } else {
-                        Move(Forward);
-                    }
-                    */
-
-                    Move(Forward);
-                }
-
-                if (KeyWasPressed(Key.S)) {
-                    Move(Backward);
-                }
-
                 if (KeyWasPressed(Key.Space)) {
-                    Sprint(Forward);
+                    Attack(Forward);
+                } else {
+                    if (KeyWasPressed(Key.A)) {
+                        Move(Left);
+                    }
+
+                    if (KeyWasPressed(Key.D)) {
+                        Move(Right);
+                    }
+
+                    if (KeyWasPressed(Key.W)) {
+                        Move(Forward);
+                    }
+
+                    if (KeyWasPressed(Key.S)) {
+                        Move(Backward);
+                    }
                 }
             }
 
