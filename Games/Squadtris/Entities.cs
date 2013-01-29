@@ -12,7 +12,6 @@
             public const string DungeonWalls = Dungeon + "~walls";
             public const string DungeonEnemies = Dungeon + "~enemies";
             public const string Squad = "squad";
-            public const string SquadUnits = Squad + "~units";
         }
 
         public static class Layers {

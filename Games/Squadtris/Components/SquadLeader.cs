@@ -18,9 +18,11 @@ namespace Squadtris.Components {
         [RequireComponent]
         Transformable2D _transform = null;
 
-        [RequireComponent(FromRecordNamed = Entities.Game.SquadUnits, AllowDerivedTypes = true /* because it's probably a MappedSpriteGrid */)]
-        SpriteGrid _sprites = null;
-
+        public float MovementInPixels {
+            get;
+            set;
+        }
+        
         public TimeSpan DelayBetweenMovements {
             get;
             set;
@@ -31,16 +33,22 @@ namespace Squadtris.Components {
         }
 
         DateTime _lastMovementTime = DateTime.Now;
+        Vector2 _lastMovementDirection = Vector2.Zero;
 
         KeyboardState _ks;
         KeyboardState _ksLast;
 
         bool _isSprinting = false;
 
+        bool CanMove() {
+            return !_isSprinting && (DateTime.Now - _lastMovementTime) > DelayBetweenMovements;
+        }
+
         void Move(Vector2 direction) {
-            _transform.TranslateBy(direction * _sprites.Texture.Height);
+            _transform.Position += direction * MovementInPixels;
 
             _lastMovementTime = DateTime.Now;
+            _lastMovementDirection = direction;
         }
 
         void Attack(Vector2 direction) {
@@ -63,7 +71,7 @@ namespace Squadtris.Components {
 
                         _transform.Position = Vector2.Lerp(
                             originalPosition, 
-                            originalPosition + (-direction * (_sprites.Texture.Height * 0.3f)),
+                            originalPosition + (-direction * (MovementInPixels * 0.3f)),
                             step);
 
                         return t > 1;
@@ -77,7 +85,7 @@ namespace Squadtris.Components {
 
                         _transform.Position = Vector2.Lerp(
                             currentPosition,
-                            originalPosition + (direction * (_sprites.Texture.Height * 0.2f)),
+                            originalPosition + (direction * (MovementInPixels * 0.2f)),
                             step);
 
                         return t > 1;
@@ -88,10 +96,6 @@ namespace Squadtris.Components {
 
                         _isSprinting = false;
                     });
-        }
-
-        bool CanMove() {
-            return !_isSprinting && DateTime.Now - _lastMovementTime > DelayBetweenMovements;
         }
 
         bool KeyWasReleased(Key key) {
@@ -109,20 +113,26 @@ namespace Squadtris.Components {
                 if (KeyWasPressed(Key.Space)) {
                     Attack(Forward);
                 } else {
+                    Vector2 direction = Vector2.Zero;
+
                     if (KeyWasPressed(Key.A)) {
-                        Move(Left);
+                        direction = Left;
                     }
 
                     if (KeyWasPressed(Key.D)) {
-                        Move(Right);
+                        direction = Right;
                     }
 
                     if (KeyWasPressed(Key.W)) {
-                        Move(Forward);
+                        direction = Forward;
                     }
 
                     if (KeyWasPressed(Key.S)) {
-                        Move(Backward);
+                        direction = Backward;
+                    }
+
+                    if (direction != Vector2.Zero) {
+                        Move(direction);
                     }
                 }
             }

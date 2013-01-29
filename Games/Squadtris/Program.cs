@@ -65,6 +65,9 @@ namespace Squadtris {
             Entity.Create(Entities.Shared.Sprites, new SpriteBatch());
         }
 
+        const int DungeonColumns = 11;
+        const int DungeonRows = 16;
+
         void CreateTheDungeon(SpriteBatch spriteBatch) {
             _dungeon = Entity.Create(Entities.Game.Dungeon, 
                 new Transformable2D() {
@@ -76,8 +79,8 @@ namespace Squadtris {
             SpriteGridSettings gridSettings =
                 new SpriteGridSettings() {
                     SpriteBatch = spriteBatch,
-                    Columns = 11,
-                    Rows = 16
+                    Columns = DungeonColumns,
+                    Rows = DungeonRows
                 };
 
             gridSettings.Layer = 0;
@@ -91,7 +94,7 @@ namespace Squadtris {
                 }
             );
 
-            string map =
+            string dungeonWallsMap =
                 "11111011111" +
                 "10000000001" +
                 "10000000001" +
@@ -115,7 +118,7 @@ namespace Squadtris {
                 new Transformable2D() {
                     Parent = _dungeon.GetComponent<Transformable2D>()
                 },
-                new MappedSpriteGrid(gridSettings, map) {
+                new MappedSpriteGrid(gridSettings, dungeonWallsMap) {
                     Textures = new Texture[] { 
                         Texture.FromFile("Content/Graphics/wall.png"),       // #1
                         Texture.FromFile("Content/Graphics/wall-broken.png") // #2
@@ -123,41 +126,7 @@ namespace Squadtris {
                 }
             );
 
-            map =
-                "00000000000" +
-                "00000000000" +
-                "00000000000" +
-                "00000000000" +
-                "00000000000" +
-                "00000000000" +
-                "00000000000" +
-                "00000000000" +
-                "00000000000" +
-                "00000000000" +
-                "00000000000" +
-                "00000000000" +
-                "00000000000" +
-                "00001000000" +
-                "00011100000" +
-                "00000000000";
-
-            _squad = Entity.Create(Entities.Game.Squad, 
-                new Transformable2D() {
-                    Parent = _dungeon.GetComponent<Transformable2D>()
-                });
-
-            Entity.Create(Entities.Game.SquadUnits,
-                new Transformable2D() {
-                    Parent = _squad.GetComponent<Transformable2D>()
-                },
-                new MappedSpriteGrid(gridSettings, map) {
-                    Texture = Texture.FromFile("Content/Graphics/unit.png")
-                }
-            );
-
-            _squad.Add(new SquadLeader()); // added later because it depends on the units spritegrid...
-            
-            map =
+            string dungeonEnemiesMap =
                 "00000000000" +
                 "00001111000" +
                 "00000100000" +
@@ -179,10 +148,33 @@ namespace Squadtris {
                 new Transformable2D() {
                     Parent = _dungeon.GetComponent<Transformable2D>()
                 },
-                new MappedSpriteGrid(gridSettings, map) {
+                new MappedSpriteGrid(gridSettings, dungeonEnemiesMap) {
                     Texture = Texture.FromFile("Content/Graphics/enemy.png")
                 }
             );
+
+            string squadFormationMap =
+                "010" +
+                "111";
+
+            gridSettings.Columns = 3;
+            gridSettings.Rows = 2;
+
+            Texture unitTexture = Texture.FromFile("Content/Graphics/unit.png");
+
+            _squad = Entity.Create(Entities.Game.Squad,
+                new Transformable2D() {
+                    Parent = _dungeon.GetComponent<Transformable2D>(),
+                    Position = new Vector2(
+                        unitTexture.Width * (DungeonColumns / 2) - unitTexture.Width, // centered
+                        -unitTexture.Height) // 1 tile down
+                },
+                new MappedSpriteGrid(gridSettings, squadFormationMap) {
+                    Texture = unitTexture
+                },
+                new SquadLeader() {
+                    MovementInPixels = unitTexture.Width
+                });
         }
 
         void CreateGameEntities() {
