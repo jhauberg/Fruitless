@@ -35,10 +35,6 @@ namespace Squadtris {
         double _previousUpdateTime;
         double _averageUpdateTime;
 
-        IEntityRecord _world;
-        IEntityRecord _dungeon;
-        IEntityRecord _squad;
-
         public Program()
             : base(320, 480, GraphicsMode.Default, "Squadtris") {
             Console.WriteLine("-------------------------------------------------------------------------------");
@@ -58,18 +54,43 @@ namespace Squadtris {
             Cursor.Y = Mouse.Y;
         }
 
+        protected override void OnLoad(EventArgs e) {
+            base.OnLoad(e);
+
+            _context = new DefaultGameContext(
+                windowBoundsInPixels: ClientRectangle.Size);
+
+            _context.Registry.Entered += OnEntityEntered;
+            _context.Registry.Removed += OnEntityRemoved;
+
+            CreateSharedEntities();
+            CreateGameEntities();
+        }
+
+        IEntityRecord _world;
+        IEntityRecord _dungeon;
+        IEntityRecord _squadLeader;
+        
+        const int DungeonColumns = 11;
+        const int DungeonRows = 16;
+
         void CreateSharedEntities() {
             _world = Entity.Create(Entities.Shared.World, new Transformable2D());
-            
+
             Entity.Create(Entities.Shared.Tasks, new TaskManager());
             Entity.Create(Entities.Shared.Sprites, new SpriteBatch());
         }
 
-        const int DungeonColumns = 11;
-        const int DungeonRows = 16;
+        void CreateGameEntities() {
+            SpriteBatch sprites = Entity.Find(Entities.Shared.Sprites)
+                .GetComponent<SpriteBatch>();
+
+            CreateTheDungeon(spriteBatch: sprites);
+            CreateSquad(spriteBatch: sprites);
+        }
 
         void CreateTheDungeon(SpriteBatch spriteBatch) {
-            _dungeon = Entity.Create(Entities.Game.Dungeon, 
+            _dungeon = Entity.Create(Entities.Game.Dungeon,
                 new Transformable2D() {
                     Position = new Vector2(
                         -(_context.Bounds.Width / 2),
@@ -152,49 +173,72 @@ namespace Squadtris {
                     Texture = Texture.FromFile("Content/Graphics/enemy.png")
                 }
             );
+        }
 
-            string squadFormationMap =
-                "010" +
-                "111";
-
-            gridSettings.Columns = 3;
-            gridSettings.Rows = 2;
+        void CreateSquad(SpriteBatch spriteBatch) {
+            Entity.Define("squad-unit",
+                typeof(Health));
 
             Texture unitTexture = Texture.FromFile("Content/Graphics/unit.png");
 
-            _squad = Entity.Create(Entities.Game.Squad,
+            _squadLeader = Entity.CreateFromDefinition("squad-unit", Entities.Game.Squad,
                 new Transformable2D() {
                     Parent = _dungeon.GetComponent<Transformable2D>(),
                     Position = new Vector2(
-                        unitTexture.Width * (DungeonColumns / 2) - unitTexture.Width, // centered
-                        -unitTexture.Height) // 1 tile down
+                        unitTexture.Width * (DungeonColumns / 2), // centered
+                        0)
                 },
-                new MappedSpriteGrid(gridSettings, squadFormationMap) {
+                new Sprite() {
+                    Layer = 2,
                     Texture = unitTexture
                 },
                 new SquadLeader() {
                     MovementInPixels = unitTexture.Width
                 });
-        }
 
-        void CreateGameEntities() {
-            SpriteBatch sprites = Entity.Find(Entities.Shared.Sprites)
-                .GetComponent<SpriteBatch>();
+            IEntityRecord squadUnitLeft = Entity.CreateFromDefinition("squad-unit", String.Format("{0}~left", Entities.Game.Squad),
+                new Transformable2D() {
+                    Parent = _squadLeader.GetComponent<Transformable2D>(),
+                    Position = new Vector2(
+                        -unitTexture.Width,
+                        -unitTexture.Width)
+                },
+                new Sprite() {
+                    Layer = 2,
+                    Texture = unitTexture
+                });
 
-            CreateTheDungeon(spriteBatch: sprites);
-        }
+            IEntityRecord squadUnitRight = Entity.CreateFromDefinition("squad-unit", String.Format("{0}~right", Entities.Game.Squad),
+                new Transformable2D() {
+                    Parent = _squadLeader.GetComponent<Transformable2D>(),
+                    Position = new Vector2(
+                        unitTexture.Width,
+                        -unitTexture.Width)
+                },
+                new Sprite() {
+                    Layer = 2,
+                    Texture = unitTexture
+                });
 
-        protected override void OnLoad(EventArgs e) {
-            base.OnLoad(e);
+            IEntityRecord squadUnitMiddle = Entity.CreateFromDefinition("squad-unit", String.Format("{0}~middle", Entities.Game.Squad),
+                new Transformable2D() {
+                    Parent = _squadLeader.GetComponent<Transformable2D>(),
+                    Position = new Vector2(
+                        0,
+                        -unitTexture.Width)
+                },
+                new Sprite() {
+                    Layer = 2,
+                    Texture = unitTexture
+                });
 
-            _context = new DefaultGameContext(
-                windowBoundsInPixels: ClientRectangle.Size);
+            spriteBatch.Add(_squadLeader.GetComponent<Sprite>());
 
-            _context.Registry.Entered += OnEntityEntered;
-            _context.Registry.Removed += OnEntityRemoved;
+            spriteBatch.Add(squadUnitLeft.GetComponent<Sprite>());
+            spriteBatch.Add(squadUnitRight.GetComponent<Sprite>());
+            spriteBatch.Add(squadUnitMiddle.GetComponent<Sprite>());
 
-            CreateSharedEntities();
-            CreateGameEntities();
+            Console.WriteLine(_squadLeader);
         }
 
         void OnEntityEntered(object sender, EntityEventArgs e) {
