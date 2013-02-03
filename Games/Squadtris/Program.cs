@@ -169,65 +169,37 @@ namespace Squadtris {
             );
         }
 
+        IEntityRecord CreateSquadUnit(string name, IEntityRecord parent, Vector2 formationPosition) {
+            IEntityRecord squadUnit = Entity.CreateFromDefinition("squad-unit", String.Format("{0}~{1}", Entities.Game.Squad, name),
+                new Transformable2D() {
+                    Parent = parent.GetComponent<Transformable2D>(),
+                    Position = formationPosition
+                },
+                new Sprite() {
+                    Layer = 2,
+                    Texture = Texture.FromFile("Content/Graphics/unit.png")
+                });
+
+            return squadUnit;
+        }
+
         void CreateSquad(SpriteBatch spriteBatch) {
             Entity.Define("squad-unit",
                 typeof(Health));
 
             Texture unitTexture = Texture.FromFile("Content/Graphics/unit.png");
 
-            _squadLeader = Entity.CreateFromDefinition("squad-unit", Entities.Game.Squad,
-                new Transformable2D() {
-                    Parent = _dungeon.GetComponent<Transformable2D>(),
-                    Position = new Vector2(
-                        unitTexture.Width * (DungeonColumns / 2), // centered
-                        0)
-                },
-                new Sprite() {
-                    Layer = 2,
-                    Texture = unitTexture
-                },
+            _squadLeader = CreateSquadUnit("leader", _dungeon, new Vector2(unitTexture.Width * (DungeonColumns / 2), 0));
+            _squadLeader.Add(
                 new SquadLeader() {
                     MovementInPixels = unitTexture.Width
                 });
 
-            IEntityRecord squadUnitLeft = Entity.CreateFromDefinition("squad-unit", String.Format("{0}~left", Entities.Game.Squad),
-                new Transformable2D() {
-                    Parent = _squadLeader.GetComponent<Transformable2D>(),
-                    Position = new Vector2(
-                        -unitTexture.Width,
-                        -unitTexture.Width)
-                },
-                new Sprite() {
-                    Layer = 2,
-                    Texture = unitTexture
-                });
-
-            IEntityRecord squadUnitRight = Entity.CreateFromDefinition("squad-unit", String.Format("{0}~right", Entities.Game.Squad),
-                new Transformable2D() {
-                    Parent = _squadLeader.GetComponent<Transformable2D>(),
-                    Position = new Vector2(
-                        unitTexture.Width,
-                        -unitTexture.Width)
-                },
-                new Sprite() {
-                    Layer = 2,
-                    Texture = unitTexture
-                });
-
-            IEntityRecord squadUnitMiddle = Entity.CreateFromDefinition("squad-unit", String.Format("{0}~middle", Entities.Game.Squad),
-                new Transformable2D() {
-                    Parent = _squadLeader.GetComponent<Transformable2D>(),
-                    Position = new Vector2(
-                        0,
-                        -unitTexture.Width)
-                },
-                new Sprite() {
-                    Layer = 2,
-                    Texture = unitTexture
-                });
-
+            IEntityRecord squadUnitLeft = CreateSquadUnit("left", _squadLeader, new Vector2(-unitTexture.Width, -unitTexture.Width));
+            IEntityRecord squadUnitRight = CreateSquadUnit("right", _squadLeader, new Vector2(unitTexture.Width, -unitTexture.Width));
+            IEntityRecord squadUnitMiddle = CreateSquadUnit("middle", _squadLeader, new Vector2(0, -unitTexture.Width));
+            
             spriteBatch.Add(_squadLeader.GetComponent<Sprite>());
-
             spriteBatch.Add(squadUnitLeft.GetComponent<Sprite>());
             spriteBatch.Add(squadUnitRight.GetComponent<Sprite>());
             spriteBatch.Add(squadUnitMiddle.GetComponent<Sprite>());
