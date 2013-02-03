@@ -24,6 +24,8 @@ namespace Squadtris {
         const string SelectCommand = "select";
         const string SelectCommandShorthand = "sel";
 
+        const string KillCommand = "kill";
+
         public DebuggableGameWindow(int width, int height, string title)
             : base(width, height, GraphicsMode.Default, title) {
             Console.Title = "Squadtris (debug)";
@@ -64,24 +66,42 @@ namespace Squadtris {
             Console.ForegroundColor = previousForegroundColor;
         }
 
+        void Select(string entityName) {
+            if (!string.IsNullOrEmpty(entityName)) {
+                _selectedEntity = Entity.Find(entityName);
+
+                if (_selectedEntity != null) {
+                    WriteInfo(String.Format("-> selected: {0}",
+                        _selectedEntity.ToString()));
+                } else {
+                    WriteWarning("-> that entity does not exist");
+                }
+            }
+        }
+
+        void Kill(string entityName) {
+            if (!string.IsNullOrEmpty(entityName)) {
+                if (_selectedEntity != null && _selectedEntity.Name.Equals(entityName)) {
+                    _selectedEntity = null;
+                }
+
+                if (Entity.Drop(entityName)) {
+                    WriteInfo("-> killed");
+                } else {
+                    WriteWarning("-> that entity was not killed");
+                }
+            }
+        }
+
         void ParseCommand(string command) {
             string[] arguments = command.Split(' ');
 
             if (arguments.Length > 1) {
                 if (arguments[0].Equals(SelectCommandShorthand) ||
                     arguments[0].Equals(SelectCommand)) {
-                    string entityName = arguments[1];
-
-                    if (!string.IsNullOrEmpty(entityName)) {
-                        _selectedEntity = Entity.Find(entityName);
-
-                        if (_selectedEntity != null) {
-                            WriteInfo(String.Format("-> selected: {0}",
-                                _selectedEntity.ToString()));
-                        } else {
-                            WriteWarning("-> that entity does not exist");
-                        }
-                    }
+                    Select(entityName: arguments[1]);
+                } else if (arguments[0].Equals(KillCommand)) {
+                    Kill(entityName: arguments[1]);
                 }
             } else {
                 WriteWarning("-> this did nothing");
