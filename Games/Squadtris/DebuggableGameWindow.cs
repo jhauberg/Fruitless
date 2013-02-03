@@ -27,10 +27,17 @@ namespace Squadtris {
         const string SelectCommand = "select";
         const string SelectCommandShorthand = "sel";
 
-        const string KillCommand = "kill";
+        const string RemoveCommand = "remove";
+        const string RemoveCommandShorthand = "rm";
 
         const string ListCommand = "list";
         const string ListCommandShorthand = "ls";
+
+        const string MakeEntityCommand = "make";
+        const string MakeEntityCommandShorthand = "mk";
+
+        const string MakeEntityFromDefinitionCommand = "makedef";
+        const string MakeEntityFromDefinitionCommandShorthand = "mkdef";
 
         public DebuggableGameWindow(int width, int height, string title)
             : base(width, height, GraphicsMode.Default, title) {
@@ -102,8 +109,26 @@ namespace Squadtris {
                         commandWasExecuted = Select(entityName: parameterArgument);
                     } break;
 
-                    case KillCommand: {
-                        commandWasExecuted = Kill(entityName: parameterArgument);
+                    case RemoveCommandShorthand:
+                    case RemoveCommand: {
+                        commandWasExecuted = Remove(entityName: parameterArgument);
+                    } break;
+
+                    case MakeEntityCommandShorthand:
+                    case MakeEntityCommand: {
+                        commandWasExecuted = Make(string.Empty, parameterArgument);
+                    }
+                    break;
+
+                    case MakeEntityFromDefinitionCommandShorthand:
+                    case MakeEntityFromDefinitionCommand: {
+                        string entityName = string.Empty;
+
+                        if (arguments.Length > 2) {
+                            entityName = arguments[2];
+                        }
+
+                        commandWasExecuted = Make(parameterArgument, entityName);
                     } break;
                 }
 
@@ -132,7 +157,7 @@ namespace Squadtris {
             return false;
         }
 
-        bool Kill(string entityName) {
+        bool Remove(string entityName) {
             if (!string.IsNullOrEmpty(entityName)) {
                 if (_selectedEntity != null && _selectedEntity.Name.Equals(entityName)) {
                     _selectedEntity = null;
@@ -141,16 +166,32 @@ namespace Squadtris {
                 if (Entity.Drop(entityName)) {
                     return true;
                 } else {
-                    WriteWarning(String.Format("{0} that entity was not killed",
+                    WriteWarning(String.Format("{0} that entity was not removed",
                         OutputSymbol));
                 }
             } else {
                 if (_selectedEntity != null) {
-                    return Kill(_selectedEntity.Name);
+                    return Remove(_selectedEntity.Name);
                 }
             }
 
             return false;
+        }
+
+        bool Make(string definition, string named) {
+            IEntityRecord entity = null;
+
+            if (string.IsNullOrEmpty(definition)) {
+                entity = Entity.Create(named);
+            } else {
+                if (string.IsNullOrEmpty(named)) {
+                    entity = Entity.CreateFromDefinition(definition);
+                } else {
+                    entity = Entity.CreateFromDefinition(definition, named);
+                }
+            }
+
+            return entity != null;
         }
 
         bool List() {

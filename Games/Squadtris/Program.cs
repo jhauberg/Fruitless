@@ -186,7 +186,7 @@ namespace Squadtris {
         void CreateSquad(SpriteBatch spriteBatch) {
             Entity.Define("squad-unit",
                 typeof(Health));
-
+            
             Texture unitTexture = Texture.FromFile("Content/Graphics/unit.png");
 
             _squadLeader = CreateSquadUnit("leader", _dungeon, new Vector2(unitTexture.Width * (DungeonColumns / 2), 0));
