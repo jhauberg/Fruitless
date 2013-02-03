@@ -3,15 +3,13 @@ using ComponentKit.Model;
 using Fruitless;
 using Fruitless.Components;
 using OpenTK;
-using OpenTK.Graphics;
 using OpenTK.Input;
 using Squadtris.Components;
 using System;
 using System.Drawing;
-using System.Reflection;
 
 namespace Squadtris {
-    internal class Program : GameWindow {
+    internal class Program : DebuggableGameWindow {
         internal static class Cursor {
             public static int X {
                 get;
@@ -36,11 +34,7 @@ namespace Squadtris {
         double _averageUpdateTime;
 
         public Program()
-            : base(320, 480, GraphicsMode.Default, "Squadtris") {
-            Console.WriteLine("-------------------------------------------------------------------------------");
-            Console.WriteLine(" E | NAME ");
-            Console.WriteLine("------------------------------");
-
+            : base(320, 480, "Squadtris") {
             WindowBorder = OpenTK.WindowBorder.Fixed;
             
             CursorVisible = true;
@@ -237,16 +231,14 @@ namespace Squadtris {
             spriteBatch.Add(squadUnitLeft.GetComponent<Sprite>());
             spriteBatch.Add(squadUnitRight.GetComponent<Sprite>());
             spriteBatch.Add(squadUnitMiddle.GetComponent<Sprite>());
-
-            Console.WriteLine(_squadLeader);
         }
 
         void OnEntityEntered(object sender, EntityEventArgs e) {
-
+            WriteInfo(String.Format("[+] {0}", e.Record));
         }
 
         void OnEntityRemoved(object sender, EntityEventArgs e) {
-
+            WriteInfo(String.Format("[-] {0}", e.Record));
         }
 
         protected override void OnResize(EventArgs e) {
@@ -272,9 +264,9 @@ namespace Squadtris {
             }
 
             if (KeyWasReleased(Key.Tilde)) {
-                System.Diagnostics.Debug.WriteLine("~");
+                ToggleConsole();
             }
-            
+  
             _context.Refresh(e.Time);
 
             if (_context.IsOutOfSync) {

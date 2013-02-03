@@ -67,12 +67,10 @@ namespace Fruitless {
         }
 
         void OnEntityEntered(object sender, EntityEventArgs e) {
-            Console.WriteLine("[+] " + e.Record);
+
         }
 
         void OnEntityRemoved(object sender, EntityEventArgs e) {
-            Console.WriteLine("[-] " + e.Record);
-
             // remove any tags associated with only this entity
             foreach (KeyValuePair<string, ICollection<IEntityRecord>> pair in Annotations) {
                 pair.Value.Remove(e.Record);
