@@ -21,15 +21,23 @@ namespace Squadtris {
 
         IEntityRecord _selectedEntity;
 
+        const string InputSymbol = "<-";
+        const string OutputSymbol = "->";
+
         const string SelectCommand = "select";
         const string SelectCommandShorthand = "sel";
 
         const string KillCommand = "kill";
 
+        const string ListCommand = "list";
+        const string ListCommandShorthand = "ls";
+
         public DebuggableGameWindow(int width, int height, string title)
             : base(width, height, GraphicsMode.Default, title) {
             Console.Title = "Squadtris (debug)";
+
             Console.SetWindowSize(80, 40);
+            Console.SetBufferSize(Console.WindowWidth, Int16.MaxValue - 1);
 
             _windowHandle = FindWindowByCaption(IntPtr.Zero, Title);
             _consoleHandle = FindWindowByCaption(IntPtr.Zero, Console.Title);
@@ -54,60 +62,101 @@ namespace Squadtris {
                 }
             }
         }
-
+        
         void BeginParsingCommand() {
             ConsoleColor previousForegroundColor = Console.ForegroundColor;
 
             Console.ForegroundColor = ConsoleColor.White;
-            Console.Write(GetTimestampedMessage("<- "));
+            Console.Write(GetTimestampedMessage(
+                String.Format("{0} ", InputSymbol)));
 
-            ParseCommand(Console.ReadLine());
+            ExecuteCommand(Console.ReadLine());
 
             Console.ForegroundColor = previousForegroundColor;
         }
 
-        void Select(string entityName) {
-            if (!string.IsNullOrEmpty(entityName)) {
-                _selectedEntity = Entity.Find(entityName);
+        void ExecuteCommand(string command) {
+            string[] arguments = command.Split(' ');
 
-                if (_selectedEntity != null) {
-                    WriteInfo(String.Format("-> selected: {0}",
-                        _selectedEntity.ToString()));
-                } else {
-                    WriteWarning("-> that entity does not exist");
+            if (arguments.Length > 0) {
+                string commandArgument = arguments[0];
+                string parameterArgument = string.Empty;
+
+                if (arguments.Length > 1) {
+                    parameterArgument = arguments[1];
+                }
+
+                bool commandWasExecuted = false;
+
+                switch (commandArgument) {
+                    default:
+                        break;
+
+                    case ListCommandShorthand:
+                    case ListCommand: {
+                        commandWasExecuted = List();
+                    } break;
+
+                    case SelectCommandShorthand:
+                    case SelectCommand: {
+                        commandWasExecuted = Select(entityName: parameterArgument);
+                    } break;
+
+                    case KillCommand: {
+                        commandWasExecuted = Kill(entityName: parameterArgument);
+                    } break;
+                }
+
+                if (!commandWasExecuted) {
+                    WriteWarning(String.Format("{0} this did nothing", 
+                        OutputSymbol));
                 }
             }
+
+            ToggleConsole();
         }
 
-        void Kill(string entityName) {
+        bool Select(string entityName) {
+            _selectedEntity = Entity.Find(entityName);
+
+            WriteInfo(String.Format("{0} selected: {1}",
+                        OutputSymbol,
+                        _selectedEntity == null ?
+                            "nothing" :
+                            _selectedEntity.ToString()));
+
+            if (_selectedEntity != null) {
+                return true;
+            }
+
+            return false;
+        }
+
+        bool Kill(string entityName) {
             if (!string.IsNullOrEmpty(entityName)) {
                 if (_selectedEntity != null && _selectedEntity.Name.Equals(entityName)) {
                     _selectedEntity = null;
                 }
 
                 if (Entity.Drop(entityName)) {
-                    WriteInfo("-> killed");
+                    return true;
                 } else {
-                    WriteWarning("-> that entity was not killed");
-                }
-            }
-        }
-
-        void ParseCommand(string command) {
-            string[] arguments = command.Split(' ');
-
-            if (arguments.Length > 1) {
-                if (arguments[0].Equals(SelectCommandShorthand) ||
-                    arguments[0].Equals(SelectCommand)) {
-                    Select(entityName: arguments[1]);
-                } else if (arguments[0].Equals(KillCommand)) {
-                    Kill(entityName: arguments[1]);
+                    WriteWarning(String.Format("{0} that entity was not killed",
+                        OutputSymbol));
                 }
             } else {
-                WriteWarning("-> this did nothing");
+                if (_selectedEntity != null) {
+                    return Kill(_selectedEntity.Name);
+                }
             }
 
-            ToggleConsole();
+            return false;
+        }
+
+        bool List() {
+            Console.WriteLine(EntityRegistry.Current.ToString());
+
+            return true;
         }
 
         string GetTimestampedMessage(string message) {
