@@ -5,8 +5,8 @@ using OpenTK.Graphics;
 using System;
 using System.Runtime.InteropServices;
 
-namespace Squadtris {
-    internal class DebuggableGameWindow : GameWindow {
+namespace Fruitless {
+    public class DebuggableGameWindow : GameWindow {
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         static extern bool SetForegroundWindow(IntPtr hWnd);
@@ -41,7 +41,7 @@ namespace Squadtris {
 
         public DebuggableGameWindow(int width, int height, string title)
             : base(width, height, GraphicsMode.Default, title) {
-            Console.Title = "Squadtris (debug)";
+            Console.Title = String.Format("Observing: {0}", title);
 
             Console.SetWindowSize(80, 40);
             Console.SetBufferSize(Console.WindowWidth, Int16.MaxValue - 1);
@@ -69,7 +69,7 @@ namespace Squadtris {
                 }
             }
         }
-        
+
         void BeginParsingCommand() {
             ConsoleColor previousForegroundColor = Console.ForegroundColor;
 
@@ -101,39 +101,43 @@ namespace Squadtris {
 
                     case ListCommandShorthand:
                     case ListCommand: {
-                        commandWasExecuted = List();
-                    } break;
+                            commandWasExecuted = List();
+                        }
+                        break;
 
                     case SelectCommandShorthand:
                     case SelectCommand: {
-                        commandWasExecuted = Select(entityName: parameterArgument);
-                    } break;
+                            commandWasExecuted = Select(entityName: parameterArgument);
+                        }
+                        break;
 
                     case RemoveCommandShorthand:
                     case RemoveCommand: {
-                        commandWasExecuted = Remove(entityName: parameterArgument);
-                    } break;
+                            commandWasExecuted = Remove(entityName: parameterArgument);
+                        }
+                        break;
 
                     case MakeEntityCommandShorthand:
                     case MakeEntityCommand: {
-                        commandWasExecuted = Make(string.Empty, parameterArgument);
-                    }
-                    break;
+                            commandWasExecuted = Make(string.Empty, parameterArgument);
+                        }
+                        break;
 
                     case MakeEntityFromDefinitionCommandShorthand:
                     case MakeEntityFromDefinitionCommand: {
-                        string entityName = string.Empty;
+                            string entityName = string.Empty;
 
-                        if (arguments.Length > 2) {
-                            entityName = arguments[2];
+                            if (arguments.Length > 2) {
+                                entityName = arguments[2];
+                            }
+
+                            commandWasExecuted = Make(parameterArgument, entityName);
                         }
-
-                        commandWasExecuted = Make(parameterArgument, entityName);
-                    } break;
+                        break;
                 }
 
                 if (!commandWasExecuted) {
-                    WriteWarning(String.Format("{0} this did nothing", 
+                    WriteWarning(String.Format("{0} this did nothing",
                         OutputSymbol));
                 }
             }

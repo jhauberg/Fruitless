@@ -48,7 +48,6 @@
   <ItemGroup>
     <Compile Include="Components\Health.cs" />
     <Compile Include="Components\SquadLeader.cs" />
-    <Compile Include="DebuggableGameWindow.cs" />
     <Compile Include="Entities.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

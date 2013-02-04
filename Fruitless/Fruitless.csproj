@@ -55,6 +55,7 @@
     <Compile Include="Components\SpriteGrid.cs" />
     <Compile Include="Components\SpriteGridSettings.cs" />
     <Compile Include="Components\TaskManager.cs" />
+    <Compile Include="DebuggableGameWindow.cs" />
     <Compile Include="DefaultGameContext.cs" />
     <Compile Include="Collections\BucketCollection.cs" />
     <Compile Include="Collections\IBucketCollection.cs" />
