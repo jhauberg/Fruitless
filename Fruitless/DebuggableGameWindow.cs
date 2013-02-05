@@ -1,12 +1,12 @@
 ﻿using ComponentKit;
 using ComponentKit.Model;
 using OpenTK;
-using OpenTK.Graphics;
+using OpenTK.Input;
 using System;
 using System.Runtime.InteropServices;
 
 namespace Fruitless {
-    public class DebuggableGameWindow : GameWindow {
+    public class DebuggableGameWindow : DefaultGameWindow {
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         static extern bool SetForegroundWindow(IntPtr hWnd);
@@ -40,30 +40,58 @@ namespace Fruitless {
         const string MakeEntityFromDefinitionCommandShorthand = "mkdef";
 
         public DebuggableGameWindow(int width, int height, string title)
-            : base(width, height, GraphicsMode.Default, title) {
-            Console.Title = String.Format("Observing: {0}", title);
-
+            : base(width, height, title) {
             Console.SetWindowSize(80, 40);
             Console.SetBufferSize(Console.WindowWidth, Int16.MaxValue - 1);
 
             _windowHandle = FindWindowByCaption(IntPtr.Zero, Title);
             _consoleHandle = FindWindowByCaption(IntPtr.Zero, Console.Title);
+
+            DetermineConsoleTitle();
+
+            Console.WriteLine("Press ~ to toggle console...");
+            Console.WriteLine();
         }
 
-        protected override void OnLoad(EventArgs e) {
-            base.OnLoad(e);
+        protected override void OnEntityEntered(object sender, EntityEventArgs e) {
+            WriteInfo(String.Format("[+] {0}", e.Record));
+        }
 
-            Console.WriteLine(GetTimestampedMessage("press ~ to toggle console"));
-            Console.WriteLine(GetTimestampedMessage("..."));
+        protected override void OnEntityRemoved(object sender, EntityEventArgs e) {
+            WriteInfo(String.Format("[-] {0}", e.Record));
+        }
+
+        protected override void OnUpdateFrame(FrameEventArgs e) {
+            base.OnUpdateFrame(e);
+
+            if (KeyWasReleased(Key.Tilde)) {
+                ToggleConsole();
+            }
+        }
+
+        void DetermineConsoleTitle() {
+            string title = string.Empty;
+
+            if (_isShowingConsole) {
+                title = String.Format("PAUSED: {0}", Title);
+            } else {
+                title = String.Format("OBSERVING: {0}", Title);
+            }
+
+            Console.Title = title;
         }
 
         protected void ToggleConsole() {
             _isShowingConsole = !_isShowingConsole;
 
-            if (SetForegroundWindow(
-                _isShowingConsole ?
-                    _consoleHandle :
-                    _windowHandle)) {
+            IntPtr focusedWindowHandle =
+                _isShowingConsole ? 
+                    _consoleHandle : 
+                    _windowHandle;
+
+            if (SetForegroundWindow(focusedWindowHandle)) {
+                DetermineConsoleTitle();
+
                 if (_isShowingConsole) {
                     BeginParsingCommand();
                 }

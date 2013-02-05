@@ -10,29 +10,6 @@ using System.Drawing;
 
 namespace Squadtris {
     internal class Program : DebuggableGameWindow {
-        internal static class Cursor {
-            public static int X {
-                get;
-                set;
-            }
-
-            public static int Y {
-                get;
-                set;
-            }
-        }
-
-        DefaultGameContext _context;
-
-        KeyboardState _ks;
-        KeyboardState _ksLast;
-
-        double _previousRenderTime;
-        double _averageRenderTime;
-
-        double _previousUpdateTime;
-        double _averageUpdateTime;
-
         public Program()
             : base(320, 480, "Squadtris") {
             WindowBorder = OpenTK.WindowBorder.Fixed;
@@ -43,19 +20,10 @@ namespace Squadtris {
 
             TargetRenderFrequency = 60;
             TargetUpdateFrequency = 60;
-
-            Cursor.X = Mouse.X;
-            Cursor.Y = Mouse.Y;
         }
 
         protected override void OnLoad(EventArgs e) {
             base.OnLoad(e);
-
-            _context = new DefaultGameContext(
-                windowBoundsInPixels: ClientRectangle.Size);
-
-            _context.Registry.Entered += OnEntityEntered;
-            _context.Registry.Removed += OnEntityRemoved;
 
             CreateSharedEntities();
             CreateGameEntities();
@@ -87,8 +55,8 @@ namespace Squadtris {
             _dungeon = Entity.Create(Entities.Game.Dungeon,
                 new Transformable2D() {
                     Position = new Vector2(
-                        -(_context.Bounds.Width / 2),
-                        -(_context.Bounds.Height / 2))
+                        -(GameContext.Bounds.Width / 2),
+                        -(GameContext.Bounds.Height / 2))
                 });
 
             SpriteGridSettings gridSettings =
@@ -205,71 +173,17 @@ namespace Squadtris {
             spriteBatch.Add(squadUnitMiddle.GetComponent<Sprite>());
         }
 
-        void OnEntityEntered(object sender, EntityEventArgs e) {
-            WriteInfo(String.Format("[+] {0}", e.Record));
-        }
-
-        void OnEntityRemoved(object sender, EntityEventArgs e) {
-            WriteInfo(String.Format("[-] {0}", e.Record));
-        }
-
-        protected override void OnResize(EventArgs e) {
-            base.OnResize(e);
-
-            _context.Bounds = ClientRectangle.Size;
-        }
-
-        bool KeyWasReleased(Key key) {
-            return _ksLast[key] && !_ks[key];
-        }
-
         protected override void OnUpdateFrame(FrameEventArgs e) {
             base.OnUpdateFrame(e);
-
-            Cursor.X = Mouse.X;
-            Cursor.Y = Mouse.Y;
-            
-            _ks = OpenTK.Input.Keyboard.GetState();
 
             if (KeyWasReleased(Key.Escape)) {
                 Exit();
             }
-
-            if (KeyWasReleased(Key.Tilde)) {
-                ToggleConsole();
-            }
-  
-            _context.Refresh(e.Time);
-
-            if (_context.IsOutOfSync) {
-                _context.Synchronize();
-            }
-
-            if (_previousUpdateTime > 0) {
-                double weightRatio = 0.1;
-
-                _averageUpdateTime = _averageUpdateTime * (1.0 - weightRatio) + _previousUpdateTime * weightRatio;
-            }
-
-            _previousUpdateTime = UpdateTime;
-
-            _ksLast = _ks;
         }
 
         protected override void OnRenderFrame(FrameEventArgs e) {
             base.OnRenderFrame(e);
 
-            _context.Render();
-
-            SwapBuffers();
-
-            if (_previousRenderTime > 0) {
-                double weightRatio = 0.1;
-
-                _averageRenderTime = _averageRenderTime * (1.0 - weightRatio) + _previousRenderTime * weightRatio;
-            }
-
-            _previousRenderTime = RenderTime;
         }
 
         [STAThread]

@@ -10,40 +10,9 @@ using System;
 using System.Drawing;
 
 namespace Portanoid {    
-    // todo: when ball hits a brick enough times it becomes loose (and gains HasVelocity!).
-
-    // One hit from the ball should quickly offset the brick a bit in the direction that the ball came from. On the second hit it should become loose
-    // and can then be absorbed by portals... bricks can not be destroyed by the ball, only set loose. Player must use portals to get rid of the 
-    // bricks entirely (out of screen or reach a certain area, i dunno yet!)
-
-    
-
-    internal class Program : GameWindow {
-        internal static class Cursor {
-            public static int X {
-                get;
-                set;
-            }
-
-            public static int Y {
-                get;
-                set;
-            }
-        }
-
-        DefaultGameContext _context;
-
-        KeyboardState _ks;
-        KeyboardState _ksLast;
-
-        double _previousRenderTime;
-        double _averageRenderTime;
-
-        double _previousUpdateTime;
-        double _averageUpdateTime;
-
+    internal class Program : DebuggableGameWindow {
         public Program()
-            : base(600, 500, GraphicsMode.Default, "Portanoid") {
+            : base(600, 500, "Portanoid") {
             WindowBorder = OpenTK.WindowBorder.Fixed;
             
             CursorVisible = true;
@@ -52,24 +21,15 @@ namespace Portanoid {
             
             TargetRenderFrequency = 60;
             TargetUpdateFrequency = 60;
-
-            Cursor.X = Mouse.X;
-            Cursor.Y = Mouse.Y;
         }
 
         protected override void OnLoad(EventArgs e) {
             base.OnLoad(e);
-
-            _context = new DefaultGameContext(
-                windowBoundsInPixels: ClientRectangle.Size);
-
-            _context.Registry.Entered += OnEntityEntered;
-            _context.Registry.Removed += OnEntityRemoved;
                         
             Sprite backgroundSprite = new Sprite() {
                 Layer = Entities.Layers.Back,
                 Texture = Texture.FromFile("Content/Graphics/tile-red.png"),
-                Size = _context.Bounds,
+                Size = GameContext.Bounds,
                 Repeats = true
             };
 
@@ -95,7 +55,7 @@ namespace Portanoid {
                 Texture = Texture.FromFile("Content/Graphics/element_grey_square_glossy.png")
             };
 
-            SpriteBatch spriteBatch = new SpriteBatch(); {
+            SpriteBatch spriteBatch = Entity.Find("sprites").GetComponent<SpriteBatch>(); {
                 spriteBatch.Add(backgroundSprite);
                 spriteBatch.Add(ballSprite);
                 spriteBatch.Add(portalInSprite);
@@ -103,8 +63,6 @@ namespace Portanoid {
 
                 spriteBatch.Add(brickSprite);
             }
-            
-            Entity.Create("tasks", new TaskManager());
             
             Entity.Create(Entities.Background, backgroundSprite);
             
@@ -121,11 +79,9 @@ namespace Portanoid {
                 Out = portalOutSprite.Transform
             });
             
-            Entity.Create("sprites", spriteBatch);
-
             IEntityRecord brick = Entity.Create("a brick", brickSprite);
 
-            _context.Annotate(brick, "breakable");
+            GameContext.Annotate(brick, "breakable");
             
             brickSprite.Transform.Position = new Vector2(0, -100);
 
@@ -159,24 +115,6 @@ namespace Portanoid {
                     });
         }
 
-        void OnEntityEntered(object sender, EntityEventArgs e) {
-
-        }
-
-        void OnEntityRemoved(object sender, EntityEventArgs e) {
-
-        }
-
-        protected override void OnResize(EventArgs e) {
-            base.OnResize(e);
-
-            _context.Bounds = ClientRectangle.Size;
-        }
-
-        bool KeyWasReleased(Key key) {
-            return _ksLast[key] && !_ks[key];
-        }
-
         void Reset() {
             var ball = Entity.Find(Entities.Ball);
 
@@ -186,55 +124,19 @@ namespace Portanoid {
 
         protected override void OnUpdateFrame(FrameEventArgs e) {
             base.OnUpdateFrame(e);
-
-            Cursor.X = Mouse.X;
-            Cursor.Y = Mouse.Y;
-
-            _ks = OpenTK.Input.Keyboard.GetState();
-
+            
             if (KeyWasReleased(Key.Escape)) {
                 Exit();
             }
-
-            if (KeyWasReleased(Key.Tilde)) {
-                System.Diagnostics.Debug.WriteLine("~");
-            }
-
+            
             if (KeyWasReleased(Key.Space)) {
                 Reset();
             }
-
-            _context.Refresh(e.Time);
-
-            if (_context.IsOutOfSync) {
-                _context.Synchronize();
-            }
-
-            if (_previousUpdateTime > 0) {
-                double weightRatio = 0.1;
-
-                _averageUpdateTime = _averageUpdateTime * (1.0 - weightRatio) + _previousUpdateTime * weightRatio;
-            }
-
-            _previousUpdateTime = UpdateTime;
-
-            _ksLast = _ks;
         }
 
         protected override void OnRenderFrame(FrameEventArgs e) {
             base.OnRenderFrame(e);
 
-            _context.Render();
-
-            SwapBuffers();
-
-            if (_previousRenderTime > 0) {
-                double weightRatio = 0.1;
-
-                _averageRenderTime = _averageRenderTime * (1.0 - weightRatio) + _previousRenderTime * weightRatio;
-            }
-
-            _previousRenderTime = RenderTime;
         }
 
         [STAThread]

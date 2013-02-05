@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Portanoid", "Games\Portanoi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Squadtris", "Games\Squadtris\Squadtris.csproj", "{EA8645AF-8E67-4AA7-B388-912A5B62069D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CardsDeep", "Games\CardsDeep\CardsDeep.csproj", "{75868530-916E-481D-B4B7-B198ADC5B385}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +73,16 @@ Global
 		{EA8645AF-8E67-4AA7-B388-912A5B62069D}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{EA8645AF-8E67-4AA7-B388-912A5B62069D}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{EA8645AF-8E67-4AA7-B388-912A5B62069D}.Release|x86.ActiveCfg = Release|Any CPU
+		{75868530-916E-481D-B4B7-B198ADC5B385}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75868530-916E-481D-B4B7-B198ADC5B385}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75868530-916E-481D-B4B7-B198ADC5B385}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{75868530-916E-481D-B4B7-B198ADC5B385}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{75868530-916E-481D-B4B7-B198ADC5B385}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{75868530-916E-481D-B4B7-B198ADC5B385}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75868530-916E-481D-B4B7-B198ADC5B385}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75868530-916E-481D-B4B7-B198ADC5B385}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{75868530-916E-481D-B4B7-B198ADC5B385}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{75868530-916E-481D-B4B7-B198ADC5B385}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
