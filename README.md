@@ -8,8 +8,12 @@ Basically... It draws sprites.
 
 # Games
 
- - None, ever :(
+* None, ever :(
 
+## Examples
+
+* [Portanoid](https://github.com/shrt/Fruitless/tree/master/Games/Portanoid) (it's like Arkanoid)
+* [Squadtris](https://github.com/shrt/Fruitless/tree/master/Games/Squadtris) (it's like Tetris)
 
 ## License
 
