@@ -14,6 +14,9 @@ namespace Fruitless.Components {
 
         TransformationComponent _parent;
 
+        /// <summary>
+        /// Gets or sets the immediate parent of this component.
+        /// </summary>
         public TransformationComponent Parent {
             get {
                 return _parent;
@@ -25,6 +28,9 @@ namespace Fruitless.Components {
             }
         }
 
+        /// <summary>
+        /// Resolves any unresolved transformations.
+        /// </summary>
         public void ApplyTransformation() {
             WasInvalidated = false;
 
@@ -56,7 +62,6 @@ namespace Fruitless.Components {
                     parentWorld = _parent.World;
                 }
 
-                // note - for inheritance of scale/rotation/translation to work separately, we need to get each of these matrices
                 World = parentWorld * Local;
 
                 RequiresWorldResolution = false;
@@ -64,22 +69,34 @@ namespace Fruitless.Components {
             }
         }
 
+        /// <summary>
+        /// Gets or sets whether this component's world transformation should be resolved when possible.
+        /// </summary>
         public bool RequiresWorldResolution {
             get;
             set;
         }
         
+        /// <summary>
+        /// Gets or sets whether this component's world transformation was just resolved.
+        /// </summary>
         public bool WasInvalidated {
             get;
             set;
         }
 
+        /// <summary>
+        /// Gets the local transformation.
+        /// </summary>
         public virtual Matrix4 Local {
             get {
                 return Matrix4.Identity;
             }
         }
 
+        /// <summary>
+        /// Gets the world transformation.
+        /// </summary>
         public Matrix4 World {
             get;
             private set;

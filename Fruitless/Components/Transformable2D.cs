@@ -10,6 +10,10 @@ namespace Fruitless.Components {
 
         float _rotationInRadians = 0;
 
+        /// <summary>
+        /// Gets the local transformation.
+        /// This is the transformation relative to its parent.
+        /// </summary>
         public override Matrix4 Local {
             get {
                 return
@@ -20,7 +24,7 @@ namespace Fruitless.Components {
         }
 
         /// <summary>
-        /// Returns the distance between this and another `Transformable2D`.
+        /// Returns the distance in pixels between this and another `Transformable2D`.
         /// </summary>
         public float DistanceTo(Transformable2D other) {
             if (other == null) {
@@ -43,6 +47,18 @@ namespace Fruitless.Components {
 
                     RequiresWorldResolution = true;
                 }
+            }
+        }
+
+        /// <summary>
+        /// The angle of rotation in degrees.
+        /// </summary>
+        public float RotationInDegrees {
+            get {
+                return OpenTK.MathHelper.RadiansToDegrees(Rotation);
+            }
+            set {
+                Rotation = OpenTK.MathHelper.DegreesToRadians(value);
             }
         }
         
